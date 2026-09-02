@@ -1,0 +1,1585 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ERP Stock — TeamBike / SportMed</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#f4f6f9;
+  --card:#ffffff;
+  --border:#e5e7eb;
+  --border-strong:#d1d5db;
+  --text:#0f172a;
+  --muted:#64748b;
+  --primary:#0f766e;
+  --primary-hover:#115e59;
+  --primary-light:#ccfbf1;
+  --primary-ring:rgba(15,118,110,.15);
+  --accent:#f59e0b;
+  --red:#dc2626;
+  --green:#059669;
+  --blue:#2563eb;
+  --radius:14px;
+  --radius-sm:10px;
+  --radius-pill:999px;
+  --input-bg:#ffffff;
+  --table-head:#f8fafc;
+  --hover:#f8fafc;
+  --shadow-sm:0 1px 2px rgba(15,23,42,.06);
+  --shadow:0 4px 16px rgba(15,23,42,.07);
+  --shadow-lg:0 10px 30px rgba(15,23,42,.12);
+  --transition:180ms cubic-bezier(.4,0,.2,1);
+}
+[data-theme="dark"]{
+  --bg:#0b1220;
+  --card:#121c2e;
+  --border:#1e2e4a;
+  --border-strong:#2a3f5e;
+  --text:#e2e8f0;
+  --muted:#94a3b8;
+  --primary:#14b8a6;
+  --primary-hover:#0d9488;
+  --primary-light:#1e3a3a;
+  --primary-ring:rgba(20,184,166,.25);
+  --input-bg:#0f1a2e;
+  --table-head:#0f1a2e;
+  --hover:#0f1e36;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',system-ui,-apple-system,Segoe UI,sans-serif;background:var(--bg);color:var(--text);line-height:1.55;-webkit-font-smoothing:antialiased;transition:background var(--transition),color var(--transition)}
+a{color:var(--primary);text-decoration:none;font-weight:600}
+a:hover{text-decoration:underline}
+/* layout */
+.app{display:flex;min-height:100vh}
+.sidebar{width:270px;background:var(--card);border-right:1px solid var(--border);position:sticky;top:0;height:100vh;overflow:auto;display:flex;flex-direction:column;box-shadow:var(--shadow-sm)}
+.sidebar-top{padding:20px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px}
+.logo{display:flex;align-items:center;gap:12px}
+.logo-icon{width:40px;height:40px;background:linear-gradient(135deg,var(--primary),#0891b2);color:white;display:grid;place-items:center;border-radius:12px;font-weight:800;font-size:18px;box-shadow:var(--shadow-sm)}
+.logo h1{font-size:16px;font-weight:800;letter-spacing:-0.02em;line-height:1}
+.logo p{font-size:11px;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;font-weight:700;margin-top:2px}
+.theme-toggle{width:44px;height:44px;border-radius:12px;border:2px solid var(--primary);background:var(--primary);color:white;cursor:pointer;display:grid;place-items:center;font-size:18px;transition:all var(--transition);flex-shrink:0;box-shadow:var(--shadow-sm);position:relative}
+.theme-toggle:hover{background:var(--primary-hover);border-color:var(--primary-hover);transform:translateY(-1px);box-shadow:var(--shadow)}
+.theme-toggle:active{transform:scale(0.96)}
+[data-theme="dark"] .theme-toggle{background:var(--card);color:var(--primary);border-color:var(--primary);box-shadow:none}
+.theme-toggle::after{content:attr(title);position:absolute;right:50px;top:50%;transform:translateY(-50%);background:var(--text);color:var(--card);padding:5px 9px;border-radius:8px;font-size:11px;white-space:nowrap;opacity:0;pointer-events:none;transition:var(--transition);box-shadow:var(--shadow)}
+.theme-toggle:hover::after{opacity:1}
+[data-theme="dark"] .theme-toggle:hover{background:var(--hover);color:var(--primary)}
+.nav{padding:14px 10px;flex:1}
+.nav button{width:100%;display:flex;align-items:center;gap:10px;padding:11px 13px;border:none;background:transparent;border-radius:12px;cursor:pointer;font-size:13.5px;font-weight:600;color:var(--muted);text-align:left;transition:all var(--transition)}
+.nav button:hover{background:var(--hover);color:var(--text);transform:translateX(2px)}
+.nav button.active{background:var(--primary);color:white;box-shadow:0 6px 18px rgba(15,118,110,.25);transform:none}
+.nav button .ico{width:22px;text-align:center;font-size:15px;opacity:.9}
+.nav button.active .ico{opacity:1}
+.nav button .badge{margin-left:auto;background:rgba(255,255,255,.22);padding:3px 8px;border-radius:var(--radius-pill);font-size:11px;font-weight:800;letter-spacing:.02em}
+.nav button.active .badge{background:white;color:var(--primary)}
+.nav button:not(.active) .badge{background:var(--hover);color:var(--muted);border:1px solid var(--border)}
+.sidebar-bottom{padding:14px 20px;border-top:1px solid var(--border);font-size:11px;color:var(--muted);background:var(--card)}
+.main{flex:1;min-width:0;padding:28px 28px 40px}
+.topbar{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;margin-bottom:20px;flex-wrap:wrap}
+.topbar h2{font-size:27px;font-weight:800;letter-spacing:-0.03em;line-height:1.1}
+.topbar p{color:var(--muted);font-size:13.5px;margin-top:6px;max-width:640px;line-height:1.5}
+.stats{display:flex;gap:14px;flex-wrap:wrap;align-items:stretch}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px 16px;min-width:160px;flex:1;box-shadow:var(--shadow-sm);transition:var(--transition);display:flex;flex-direction:column;gap:4px}
+.stat:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+.stat-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px}
+.stat .k{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700;line-height:1}
+.stat .v{font-size:24px;font-weight:800;letter-spacing:-.03em;line-height:1}
+.stat .s{font-size:12px;color:var(--muted);line-height:1.3}
+.stat .bar{height:4px;background:var(--border);border-radius:99px;overflow:hidden;margin-top:8px}
+.stat .bar i{display:block;height:100%;border-radius:99px;transition:width .6s ease}
+.stat .pct{font-size:11px;font-weight:700;color:var(--muted)}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow-sm);transition:box-shadow var(--transition)}
+.card:hover{box-shadow:var(--shadow)}
+.card-pad{padding:18px}
+.card-head{padding:15px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:linear-gradient(to bottom, var(--card), var(--hover)/0.5)}
+.card-head h3{font-size:13.5px;font-weight:700;letter-spacing:-.01em;display:flex;align-items:center;gap:8px}
+.btn{appearance:none;border:1px solid var(--border);background:var(--card);color:var(--text);padding:9px 15px;border-radius:var(--radius-sm);font-size:13px;font-weight:600;cursor:pointer;transition:all var(--transition);display:inline-flex;align-items:center;gap:7px;box-shadow:var(--shadow-sm);line-height:1}
+.btn:hover{border-color:var(--border-strong);background:var(--hover);transform:translateY(-1px);box-shadow:var(--shadow)}
+.btn:active{transform:translateY(0);box-shadow:none}
+.btn:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+.btn-primary{background:var(--primary);color:white;border-color:var(--primary);box-shadow:0 4px 14px rgba(15,118,110,.22)}
+.btn-primary:hover{background:var(--primary-hover);border-color:var(--primary-hover);box-shadow:0 6px 20px rgba(15,118,110,.3)}
+.btn-ghost{background:transparent;box-shadow:none}
+.btn-sm{padding:7px 11px;font-size:12.5px;border-radius:9px}
+.btn-danger{border-color:#fecaca;color:var(--red);background:#fef2f2}
+.btn-danger:hover{background:#fee2e2;border-color:#fca5a5;color:#b91c1c;box-shadow:0 4px 12px rgba(220,38,38,.15)}
+.input, .select{border:1px solid var(--border);background-color:var(--input-bg);color:var(--text);padding:9px 13px;border-radius:var(--radius-sm);font-size:13.5px;outline:none;width:100%;font-family:inherit;transition:all var(--transition);box-shadow:inset 0 1px 2px rgba(15,23,42,.04)}
+.input:hover,.select:hover{border-color:var(--border-strong);background:var(--card)}
+[data-theme="dark"] .input:hover,[data-theme="dark"] .select:hover{border-color:#2a3f5e}
+.input:focus,.select:focus{border-color:var(--primary);box-shadow:0 0 0 4px var(--primary-ring), inset 0 1px 2px rgba(15,23,42,.04);background:var(--card)}
+.input::placeholder{color:#94a3b8}
+.select{appearance:none;-webkit-appearance:none;-moz-appearance:none;background-color:var(--input-bg);background-image:none;padding-right:14px;cursor:pointer;font-weight:500}
+.select:focus{outline:none}
+.select option{background:var(--card) !important;background-image:none !important;color:var(--text);padding:10px;font-weight:500}
+.select:disabled{opacity:.55;cursor:not-allowed;background:var(--hover)}
+.select::-ms-expand{display:none}
+.select-wrapper{position:relative;display:inline-block;width:100%}
+.select-wrapper::after{content:"";position:absolute;right:12px;top:50%;transform:translateY(-50%);width:14px;height:14px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-size:14px;background-position:center;pointer-events:none;transition:var(--transition)}
+.select-wrapper:focus-within::after{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%230f766e' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E")}
+[data-theme="dark"] .select-wrapper::after{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E")}
+[data-theme="dark"] .select-wrapper:focus-within::after{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2314b8a6' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E")}
+.select-wrapper .select{padding-right:38px;background-image:none !important}
+input[type="number"]{appearance:textfield;-moz-appearance:textfield}
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button{-webkit-appearance:none;appearance:none;margin:0;opacity:0;width:0;pointer-events:none}
+.number-wrapper{position:relative;display:inline-flex;align-items:center;width:100%}
+.number-wrapper input[type="number"]{padding-right:32px;width:100%}
+.number-spinner{position:absolute;right:1px;top:1px;bottom:1px;width:28px;display:flex;flex-direction:column;border-left:1px solid var(--border);border-radius:0 var(--radius-sm) var(--radius-sm) 0;overflow:hidden;background:var(--card);box-shadow:inset 0 1px 0 rgba(255,255,255,.6)}
+.number-spinner button{flex:1;border:none;background:var(--card);color:var(--muted);cursor:pointer;display:grid;place-items:center;font-size:8px;line-height:1;transition:var(--transition);padding:0}
+.number-spinner button:hover{background:var(--hover);color:var(--primary)}
+.number-spinner button:active{background:var(--primary-light);color:var(--primary)}
+.number-spinner button:first-child{border-bottom:1px solid var(--border)}
+[data-theme="dark"] .number-spinner{background:var(--input-bg);border-left-color:var(--border);box-shadow:none}
+[data-theme="dark"] .number-spinner button{background:var(--input-bg);color:var(--muted)}
+[data-theme="dark"] .number-spinner button:hover{background:var(--hover);color:var(--primary)}
+input[type="number"]:focus::-webkit-inner-spin-button{border-left-color:var(--primary)}
+[data-theme="dark"] input[type="number"]::-webkit-inner-spin-button,
+[data-theme="dark"] input[type="number"]::-webkit-outer-spin-button{background:var(--input-bg);border-left-color:var(--border)}
+input[type="checkbox"]{appearance:none;-webkit-appearance:none;width:18px;height:18px;border:1.5px solid var(--border-strong);border-radius:6px;background:var(--input-bg);cursor:pointer;display:grid;place-items:center;transition:var(--transition);flex-shrink:0}
+input[type="checkbox"]:checked{background:var(--primary);border-color:var(--primary);color:white}
+input[type="checkbox"]:checked::after{content:'✓';font-size:11px;font-weight:800}
+input[type="checkbox"]:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.toolbar .input{max-width:280px}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:5px 11px;border-radius:var(--radius-pill);font-size:11.5px;font-weight:700;letter-spacing:.01em;border:1px solid transparent;box-shadow:var(--shadow-sm)}
+.pill-green{background:#dcfce7;color:#166534;border-color:#bbf7d0}
+.pill-red{background:#fee2e2;color:#991b1b;border-color:#fecaca}
+.pill-amber{background:#fef3c7;color:#92400e;border-color:#fde68a}
+.pill-blue{background:#dbeafe;color:#1e40af;border-color:#bfdbfe}
+.pill-gray{background:#f1f5f9;color:#475569;border-color:#e2e8f0}
+[data-theme="dark"] .pill-green{background:#052e1a;color:#6ee7b7;border-color:#14532d}
+[data-theme="dark"] .pill-red{background:#450a0a;color:#fca5a5;border-color:#7f1d1d}
+[data-theme="dark"] .pill-amber{background:#3a2400;color:#fcd34d;border-color:#92400e}
+[data-theme="dark"] .pill-blue{background:#0c1a3a;color:#93c5fd;border-color:#1e3a5f}
+[data-theme="dark"] .pill-gray{background:#1e293b;color:#cbd5e1;border-color:#334155}
+.btn-monitored{border-color:#fde68a;background:#fffbeb;color:#92400e;box-shadow:var(--shadow-sm)}
+.btn-monitored:hover{background:#fef3c7;border-color:#fcd34d;transform:translateY(-1px);box-shadow:var(--shadow)}
+[data-theme="dark"] .btn-monitored{border-color:#92400e;background:#3a2400;color:#fcd34d}
+[data-theme="dark"] .btn-monitored:hover{background:#422006;border-color:#b45309}
+.table-wrap{overflow:auto;border-radius:0 0 var(--radius) var(--radius)}
+table{width:100%;border-collapse:separate;border-spacing:0;font-size:13px}
+th{text-align:left;font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-weight:700;padding:12px 14px;border-bottom:1px solid var(--border);white-space:nowrap;background:var(--table-head);position:sticky;top:0;backdrop-filter:blur(6px)}
+th:first-child{border-radius:0}
+td{padding:12px 14px;border-bottom:1px solid var(--border);vertical-align:middle;transition:background var(--transition)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--hover)}
+.mono{font-family:'JetBrains Mono',monospace;font-size:12.5px;letter-spacing:-.01em}
+.stock-0{color:var(--red);font-weight:800}
+.stock-low{color:var(--accent);font-weight:700}
+.stock-ok{color:var(--green);font-weight:700}
+.empty{padding:48px 18px;text-align:center;color:var(--muted)}
+.empty .big{font-size:42px;margin-bottom:12px;opacity:.9}
+.grid-5{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+@media(max-width:1100px){.grid-5{grid-template-columns:repeat(2,1fr)} .app{flex-direction:column} .sidebar{width:100%;height:auto;position:relative} .main{padding:18px}}
+@media(max-width:600px){.grid-5{grid-template-columns:1fr}}
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:15px;box-shadow:var(--shadow-sm);transition:var(--transition)}
+.kpi:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+.kpi .k{font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.kpi .v{font-size:26px;font-weight:800;margin-top:6px;letter-spacing:-.02em}
+.kpi .s{font-size:12px;color:var(--muted);margin-top:2px}
+.tabs-verif{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.tabs-verif button{padding:8px 14px;border-radius:var(--radius-pill);border:1px solid var(--border);background:var(--card);color:var(--text);font-size:13px;font-weight:600;cursor:pointer;transition:var(--transition);box-shadow:var(--shadow-sm)}
+.tabs-verif button:hover{transform:translateY(-1px);box-shadow:var(--shadow);border-color:var(--border-strong)}
+.tabs-verif button.active{background:var(--primary);color:white;border-color:var(--primary);box-shadow:0 4px 14px rgba(15,118,110,.22)}
+.badge-dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+.drop{border:2px dashed var(--border);border-radius:var(--radius);padding:32px;text-align:center;background:var(--card);transition:all var(--transition);cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.5)}
+.drop:hover{border-color:var(--primary);background:var(--hover);transform:translateY(-1px)}
+.drop.drag{border-color:var(--primary);background:var(--primary-light);transform:scale(1.01);box-shadow:var(--shadow)}
+#restore-drop{border:2px dashed var(--primary);background:var(--primary-light);padding:32px;box-shadow:var(--shadow-sm)}
+#restore-drop:hover{border-color:var(--primary-hover);background:#bbf7d0;transform:translateY(-1px);box-shadow:var(--shadow)}
+[data-theme="dark"] #restore-drop{background:#0f2e2e;border-color:var(--primary)}
+[data-theme="dark"] #restore-drop:hover{background:#1a3a3a}
+.progress{height:8px;background:#e2e8f0;border-radius:var(--radius-pill);overflow:hidden;box-shadow:inset 0 1px 2px rgba(0,0,0,.06)}
+.progress i{display:block;height:100%;background:linear-gradient(90deg,var(--primary),#06b6d4);width:0;transition:width .4s ease}
+.notice{padding:12px 14px;border-radius:var(--radius-sm);font-size:13px;border:1px solid;line-height:1.5;box-shadow:var(--shadow-sm)}
+.notice-ok{background:#ecfdf5;border-color:#a7f3d0;color:#065f46}
+.notice-err{background:#fef2f2;border-color:#fecaca;color:#991b1b}
+.notice-info{background:#eff6ff;border-color:#bfdbfe;color:#1e40af}
+[data-theme="dark"] .notice-ok{background:#062e22;border-color:#0f6b4a;color:#6ee7b7}
+[data-theme="dark"] .notice-err{background:#450a0a;border-color:#7f1d1d;color:#fecaca}
+[data-theme="dark"] .notice-info{background:#0c1a3a;border-color:#1e3a5f;color:#93c5fd}
+.help h4{font-size:14px;margin:18px 0 8px;display:flex;align-items:center;gap:8px}
+.help p,.help li{font-size:13.5px;color:var(--text);opacity:.9;line-height:1.6}
+.help ul{padding-left:18px}
+.help code{background:var(--hover);padding:2px 7px;border-radius:6px;font-family:'JetBrains Mono',monospace;font-size:12px;border:1px solid var(--border);font-weight:500}
+.pagination{display:flex;gap:6px;align-items:center;justify-content:center;padding:16px}
+.pagination button{padding:7px 12px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--card);color:var(--text);cursor:pointer;font-size:13px;font-weight:600;transition:var(--transition);box-shadow:var(--shadow-sm)}
+.pagination button:hover:not(:disabled){border-color:var(--border-strong);background:var(--hover);transform:translateY(-1px)}
+.pagination button.active{background:var(--primary);color:white;border-color:var(--primary);box-shadow:0 4px 12px rgba(15,118,110,.22)}
+.pagination button:disabled{opacity:.45;cursor:not-allowed}
+.hidden{display:none !important}
+/* modal */
+.modal-bg{position:fixed;inset:0;background:rgba(15,23,42,.55);backdrop-filter:blur(4px);display:grid;place-items:center;z-index:50;padding:20px}
+.modal{background:var(--card);border:1px solid var(--border);border-radius:16px;max-width:900px;width:100%;max-height:90vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--shadow-lg)}
+.modal-head{padding:16px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px}
+.modal-body{overflow:auto;padding:0}
+.modal-foot{padding:14px 18px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px;background:var(--hover)}
+/* dark scrollbar */
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:var(--radius-pill);border:2px solid transparent;background-clip:content-box}
+::-webkit-scrollbar-thumb:hover{background:var(--border-strong);background-clip:content-box}
+::-webkit-scrollbar-track{background:transparent}
+
+/* historico visual - mapa bonito */
+.historico-timeline{position:relative;display:flex;gap:18px;overflow-x:auto;padding:24px 8px 16px;scroll-snap-type:x mandatory}
+.historico-timeline::before{content:"";position:absolute;top:42px;left:12px;right:12px;height:4px;background:linear-gradient(90deg,var(--primary),var(--blue));border-radius:99px;opacity:.15}
+.timeline-item{flex:0 0 200px;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px;box-shadow:var(--shadow-sm);scroll-snap-align:start;position:relative;transition:var(--transition)}
+.timeline-item:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg);border-color:var(--primary)}
+.timeline-dot{position:absolute;top:-10px;left:50%;transform:translateX(-50%);width:18px;height:18px;border-radius:50%;background:var(--card);border:3px solid var(--primary);box-shadow:0 2px 8px rgba(0,0,0,.15);display:grid;place-items:center}
+.timeline-dot.teambike{border-color:#ffffff;background:#0f766e;box-shadow:0 0 0 3px rgba(15,118,110,.25), 0 2px 8px rgba(0,0,0,.15)}
+.timeline-dot.sportmed{border-color:#ffffff;background:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.25), 0 2px 8px rgba(0,0,0,.15)}
+[data-theme="dark"] .timeline-dot.teambike{background:#14b8a6!important;border-color:#e2e8f0!important;box-shadow:0 0 0 3px rgba(20,184,166,.4), 0 2px 10px rgba(0,0,0,.4)!important}
+[data-theme="dark"] .timeline-dot.sportmed{background:#60a5fa!important;border-color:#e2e8f0!important;box-shadow:0 0 0 3px rgba(96,165,250,.4), 0 2px 10px rgba(0,0,0,.4)!important}
+[data-theme="dark"] .historico-timeline::before{opacity:.3}
+[data-theme="dark"] .timeline-item{border-color:#2a3f5e;box-shadow:0 4px 16px rgba(0,0,0,.3)}
+.timeline-item .date{font-size:11px;color:var(--muted);font-weight:600;letter-spacing:.04em}
+.timeline-item .file{font-size:13px;font-weight:700;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.timeline-item .meta{font-size:11px;color:var(--muted);margin-top:6px;display:flex;justify-content:space-between}
+.chart-card{position:relative;height:280px}
+.neural-wrap{position:relative;height:420px;background:radial-gradient(ellipse at 30% 20%, rgba(15,118,110,.08), transparent 50%), radial-gradient(ellipse at 80% 80%, rgba(37,99,235,.10), transparent 45%), linear-gradient(180deg, var(--card) 0%, var(--bg) 100%);border-radius:12px;overflow:hidden;border:1px solid var(--border);box-shadow:inset 0 1px 0 rgba(255,255,255,.6)}
+.neural-wrap canvas{width:100%;height:100%;display:block}
+.neural-legend{position:absolute;bottom:10px;left:10px;display:flex;gap:8px;flex-wrap:wrap}
+.neural-legend span{display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border-radius:99px;background:var(--card);border:1px solid var(--border);font-size:11px;font-weight:600;box-shadow:var(--shadow-sm)}
+@media(max-width:700px){.historico-timeline{flex-direction:column}.historico-timeline::before{top:12px;bottom:12px;left:22px;right:auto;width:4px;height:auto;background:linear-gradient(180deg,var(--primary),var(--blue))}.timeline-item{flex:0 0 auto}}
+
+/* fornecedor separação visível */
+
+.pill-teambike{background:#ccfbf1;color:#0f766e;border:1px solid #99f6e4}
+.pill-sportmed{background:#dbeafe;color:#1e40af;border:1px solid #bfdbfe}
+[data-theme="dark"] .pill-teambike{background:#0f2e2e;color:#5eead4;border-color:#115e59}
+[data-theme="dark"] .pill-sportmed{background:#1e293b;color:#93c5fd;border-color:#334155}
+.supplier-tabs{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.supplier-tabs button{padding:9px 16px;border-radius:var(--radius-pill);border:1px solid var(--border);background:var(--card);color:var(--text);font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:7px;box-shadow:var(--shadow-sm);transition:var(--transition)}
+.supplier-tabs button:hover{transform:translateY(-1px);box-shadow:var(--shadow)}
+.supplier-tabs button.active{background:var(--primary);color:white;border-color:var(--primary);box-shadow:0 4px 14px rgba(15,118,110,.22)}
+.supplier-dot{width:9px;height:9px;border-radius:50%;display:inline-block;box-shadow:inset 0 1px 2px rgba(0,0,0,.15)}
+.dot-teambike{background:#0f766e}
+.dot-sportmed{background:#2563eb}
+
+/* favicons (Font Awesome) tweaks */
+.ico i{font-size:15px;width:22px;text-align:center}
+.btn i, .pill i, .k i{margin-right:4px}
+.empty .big i{font-size:42px;color:var(--muted)}
+.drop i{font-size:38px;color:var(--muted)}
+
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="sidebar-top">
+      <div class="logo">
+        <div class="logo-icon">◈</div>
+        <div>
+          <h1>ERP Stock</h1>
+          <p>TeamBike • SportMed</p>
+        </div>
+      </div>
+      <button id="theme-toggle" class="theme-toggle" title="Alternar modo escuro/claro"><i class="fa-solid fa-moon"></i></button>
+    </div>
+    <nav class="nav" id="nav">
+      <button data-tab="stock" class="active"><span class="ico"><i class="fa-solid fa-box"></i></span> Stock <span class="badge" id="badge-total">0</span></button>
+      <button data-tab="verificacao"><span class="ico"><i class="fa-solid fa-magnifying-glass"></i></span> Verificação <span class="badge" id="badge-verif">0</span></button>
+      <button data-tab="monitorizados"><span class="ico"><i class="fa-solid fa-star"></i></span> Monitorizados <span class="badge" id="badge-mon">0</span></button>
+      <button data-tab="historico"><span class="ico"><i class="fa-solid fa-clock-rotate-left"></i></span> Histórico</button>
+      <button data-tab="importar"><span class="ico"><i class="fa-solid fa-upload"></i></span> Importar</button>
+      <button data-tab="definicoes"><span class="ico"><i class="fa-solid fa-gear"></i></span> Definições</button>
+      <button data-tab="ajuda"><span class="ico"><i class="fa-solid fa-circle-question"></i></span> Ajuda</button>
+    </nav>
+    <div class="sidebar-bottom" style="padding:12px 20px;text-align:center">
+      <div style="font-size:10px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;font-weight:700">ERP Stock</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:2px">TeamBike • SportMed</div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <!-- STOCK -->
+    <section id="tab-stock">
+      <div class="topbar">
+        <div>
+          <h2>Stock</h2>
+          <p id="stock-subtitle">Stock atual — TeamBike e SportMed. Mostra a última importação; use a pesquisa e filtros.</p>
+        </div>
+        <div class="stats" id="stats-stock"></div>
+      </div>
+      <div class="supplier-tabs" id="supplier-tabs">
+        <button data-supplier="todos" class="active" onclick="setSupplier('todos')"><span class="supplier-dot" style="background:#64748b"></span> Todos <span id="count-todos" class="pill pill-gray" style="margin-left:4px">0</span></button>
+        <button data-supplier="TeamBike" onclick="setSupplier('TeamBike')"><span class="supplier-dot dot-teambike"></span> TeamBike <span id="count-teambike" class="pill pill-teambike" style="margin-left:4px">0</span></button>
+        <button data-supplier="SportMed" onclick="setSupplier('SportMed')"><span class="supplier-dot dot-sportmed"></span> SportMed <span id="count-sportmed" class="pill pill-sportmed" style="margin-left:4px">0</span></button>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <div class="toolbar">
+            <input id="search" class="input" placeholder="Pesquisar referência, descrição, marca, EAN..." style="min-width:260px">
+            <select id="filter-supplier" class="select" style="width:180px" title="Filtra por fornecedor">
+              <option value="todos">Todos fornecedores</option>
+              <option value="TeamBike">TeamBike</option>
+              <option value="SportMed">SportMed</option>
+            </select>
+            <select id="filter-stock" class="select" style="width:170px">
+              <option value="todos">Todos</option>
+              <option value="com_stock">Com stock</option>
+              <option value="sem_stock">Sem stock (0)</option>
+              <option value="monitorizados">Só monitorizados</option>
+            </select>
+            <select id="filter-marca" class="select" style="width:160px" title="Filtra por marca do produto (ex: Giro, TheraBand, Hartmann) — não é o fornecedor"><option value="">Todas as marcas (produto)</option></select>
+          </div>
+          <div class="toolbar">
+            <button class="btn btn-sm" onclick="loadStock()"><i class="fa-solid fa-rotate"></i> Atualizar</button>
+            <span id="stock-count" class="pill pill-gray">0 produtos</span>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>Referência</th><th>Descrição</th><th title="Marca do produto">Marca</th><th>Fornecedor</th><th style="text-align:center">Stock</th><th>Preço</th><th>EAN</th><th style="width:120px"></th>
+            </tr></thead>
+            <tbody id="tbody-stock"></tbody>
+          </table>
+          <div id="empty-stock" class="empty hidden"><div class="big"><i class="fa-solid fa-box-open"></i></div><b>Sem produtos</b><br>Importe um ficheiro Excel na aba Importar.</div>
+        </div>
+        <div class="pagination" id="pagination"></div>
+      </div>
+    </section>
+
+    <!-- VERIFICAÇÃO -->
+    <section id="tab-verificacao" class="hidden">
+      <div class="topbar">
+        <div>
+          <h2>Verificação</h2>
+          <p>Comparação automática entre as duas últimas importações <b>do mesmo fornecedor</b>. Detecta reposições, ruturas, novos, abaixo do limite e desaparecidos.</p>
+        </div>
+        <div class="toolbar">
+          <select id="verif-supplier" class="select" style="width:180px" onchange="loadVerificacao()">
+            <option value="">Auto (último fornecedor)</option>
+            <option value="TeamBike">TeamBike</option>
+            <option value="SportMed">SportMed</option>
+          </select>
+          <button class="btn" onclick="loadVerificacao()"><i class="fa-solid fa-rotate"></i> Recalcular</button>
+        </div>
+      </div>
+      <div id="verif-no-data" class="card card-pad hidden"><div class="empty"><div class="big"><i class="fa-solid fa-folder-open"></i></div><b>Sem comparação disponível</b><br>Precisa de pelo menos 2 importações. Importe um novo ficheiro para comparar.</div></div>
+      <div id="verif-has-data" class="hidden">
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;font-size:12px;color:var(--muted)" id="verif-meta"></div>
+        <div class="grid-5" id="kpis-verif"></div>
+        <div class="tabs-verif" style="margin-top:16px" id="verif-tabs">
+          <button data-v="reposicoes" class="active"><i class="fa-solid fa-check"></i> Reposições <span id="c-reposicoes"></span></button>
+          <button data-v="ruturas"><i class="fa-solid fa-ban"></i> Ruturas <span id="c-ruturas"></span></button>
+          <button data-v="novos"><i class="fa-solid fa-plus"></i> Novos <span id="c-novos"></span></button>
+          <button data-v="abaixo_limite"><i class="fa-solid fa-triangle-exclamation"></i> Abaixo do Limite <span id="c-abaixo"></span></button>
+          <button data-v="desaparecidos"><i class="fa-solid fa-ghost"></i> Desaparecidos <span id="c-desaparecidos"></span></button>
+        </div>
+        <div class="card">
+          <div class="table-wrap"><table><thead id="thead-verif"></thead><tbody id="tbody-verif"></tbody></table></div>
+          <div id="empty-verif" class="empty hidden">Nenhum produto nesta categoria <i class="fa-solid fa-check-circle"></i></div>
+          </div>
+      </div>
+    </section>
+
+    <!-- HISTÓRICO VISUAL -->
+    <section id="tab-historico" class="hidden">
+      <div class="topbar">
+        <div>
+          <h2>Mapa Visual do Histórico</h2>
+          <p>Linha do tempo completa desde a primeira importação — evolução bonita do stock por fornecedor e por produto.</p>
+        </div>
+        <div class="toolbar">
+          <button class="btn btn-sm" onclick="loadHistorico()"><i class="fa-solid fa-rotate"></i> Atualizar</button>
+        </div>
+      </div>
+
+      <div class="grid-5" style="grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:16px" id="hist-kpis">
+        <div class="kpi" style="border-left:4px solid var(--primary)"><div class="k">Importações totais</div><div class="v" id="hist-total">0</div><div class="s" id="hist-span">—</div></div>
+        <div class="kpi" style="border-left:4px solid #0f766e"><div class="k">TeamBike</div><div class="v" id="hist-teambike">0</div><div class="s">produtos atuais</div></div>
+        <div class="kpi" style="border-left:4px solid #2563eb"><div class="k">SportMed</div><div class="v" id="hist-sportmed">0</div><div class="s">produtos atuais</div></div>
+      </div>
+
+      <div class="card card-pad" style="margin-bottom:16px">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px">
+          <h3><i class="fa-solid fa-chart-line" style="color:var(--primary)"></i> Evolução do Stock</h3>
+          <span class="pill pill-gray" style="font-size:11px">Total de produtos por importação</span>
+        </div>
+        <div class="chart-card"><canvas id="chart-historico"></canvas></div>
+      </div>
+
+      <div class="card card-pad" style="margin-bottom:16px">
+        <h3><i class="fa-solid fa-timeline" style="color:var(--primary)"></i> Linha do Tempo</h3>
+        <p style="font-size:12px;color:var(--muted);margin-top:4px">Cada ponto é uma importação — cor e ícone por fornecedor. Arrasta para navegar.</p>
+        <div id="timeline" class="historico-timeline" style="margin-top:12px"></div>
+        <div id="timeline-empty" class="empty hidden" style="padding:20px"><div class="big"><i class="fa-solid fa-clock-rotate-left"></i></div>Sem histórico ainda. Importa ficheiros para ver o mapa.</div>
+      </div>
+
+      <div class="card card-pad" style="margin-bottom:16px;overflow:hidden">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+          <h3><i class="fa-solid fa-brain" style="color:var(--primary)"></i> Mapa Neural 3D</h3>
+          <span class="pill pill-gray" style="font-size:11px"><i class="fa-solid fa-circle-nodes"></i> Interligado</span>
+        </div>
+        <p style="font-size:12px;color:var(--muted);margin-top:4px">Rede neural — fornecedores no centro, categorias e importações interligadas. Arrasta para orbitar, scroll para zoom, hover para detalhes.</p>
+        <div class="neural-wrap" style="margin-top:14px">
+          <canvas id="neural-canvas"></canvas>
+          <div id="neural-tooltip" style="position:absolute;display:none;background:var(--text);color:var(--card);padding:7px 10px;border-radius:8px;font-size:11px;pointer-events:none;box-shadow:var(--shadow-lg);max-width:220px;line-height:1.4;z-index:5"></div>
+          <div class="neural-legend">
+            <span><span class="supplier-dot dot-teambike"></span> TeamBike</span>
+            <span><span class="supplier-dot dot-sportmed"></span> SportMed</span>
+            <span><span style="width:9px;height:9px;border-radius:50%;background:var(--accent);display:inline-block"></span> Categoria</span>
+            <span><span style="width:9px;height:9px;border-radius:50%;background:var(--muted);display:inline-block"></span> Importação</span>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+          <button class="btn btn-sm" onclick="neuralResetView()"><i class="fa-solid fa-crosshairs"></i> Reset vista</button>
+          <button class="btn btn-sm" onclick="neuralToggleRotation()"><i class="fa-solid fa-rotate"></i> <span id="neural-rot-label">Pausar</span></button>
+          <span style="font-size:11px;color:var(--muted);align-self:center" id="neural-stats">—</span>
+        </div>
+      </div>
+
+      <div class="card card-pad">
+        <h3><i class="fa-solid fa-magnifying-glass" style="color:var(--primary)"></i> Histórico por Produto</h3>
+        <p style="font-size:12px;color:var(--muted);margin-top:4px">Pesquisa uma referência e vê a sua curva de stock desde sempre — bonito e útil.</p>
+        <div style="display:flex;gap:10px;margin-top:12px;max-width:520px">
+          <input id="hist-prod-search" class="input" placeholder="Ex: REF001, COD001, 00.0000.200.396..." list="hist-prod-list">
+          <datalist id="hist-prod-list"></datalist>
+          <button class="btn btn-primary" onclick="loadProdutoHistorico()"><i class="fa-solid fa-chart-simple"></i> Ver curva</button>
+        </div>
+        <div class="chart-card" style="height:240px;margin-top:16px"><canvas id="chart-produto"></canvas></div>
+        <div id="hist-prod-info" style="margin-top:12px;font-size:12px;color:var(--muted);min-height:18px"></div>
+      </div>
+    </section>
+
+    <!-- MONITORIZADOS -->
+    <section id="tab-monitorizados" class="hidden">
+      <div class="topbar">
+        <div>
+          <h2>Monitorizados</h2>
+          <p>Produtos que está a acompanhar. Defina limite individual e receba alerta quando ficar abaixo.</p>
+        </div>
+        <div class="toolbar">
+          <button class="btn" onclick="loadMonitored()"><i class="fa-solid fa-rotate"></i> Atualizar</button>
+          <button class="btn btn-danger" onclick="clearMonitored()">Limpar todos</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <h3 id="mon-count">0 produtos monitorizados</h3>
+          <span class="pill pill-amber">Limite 0 = alerta se ficar sem stock</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Referência</th><th>Descrição</th><th style="text-align:center">Stock atual</th><th style="text-align:center">Limite</th><th>Estado</th><th></th></tr></thead>
+            <tbody id="tbody-mon"></tbody>
+          </table>
+          <div id="empty-mon" class="empty"><div class="big"><i class="fa-solid fa-star"></i></div><b>Nenhum produto monitorizado</b><br>Na aba Stock clique em “Monitorizar” num produto, ou importe e monitorize a partir da Verificação.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- IMPORTAR -->
+    <section id="tab-importar" class="hidden">
+      <div class="topbar">
+        <div><h2>Importar</h2><p>Arraste o Excel do fornecedor (.xlsx/.xls/.csv). O sistema guarda a importação anterior e atualiza automaticamente a Verificação.</p></div>
+      </div>
+      <div style="max-width:900px">
+        <div>
+          <div class="card card-pad">
+            <label style="font-size:13px;font-weight:700">Fornecedor / Marca</label>
+            <select id="supplier" class="select" style="margin-top:6px;max-width:260px"><option>TeamBike</option><option>SportMed</option><option>Outro</option></select>
+            <div id="drop" class="drop" style="margin-top:14px" onclick="document.getElementById('file').click()">
+              <div style="font-size:38px"><i class="fa-solid fa-file-excel"></i></div>
+              <div style="font-weight:800;margin-top:6px">Clique ou arraste o ficheiro Excel aqui</div>
+              <div style="font-size:12px;color:var(--muted);margin-top:4px">.xlsx, .xls ou .csv — até 50MB</div>
+              <div style="margin-top:12px"><span class="btn btn-primary">Escolher ficheiro</span></div>
+              <div id="file-name" style="font-size:12px;color:var(--muted);margin-top:10px"></div>
+            </div>
+            <input type="file" id="file" accept=".xlsx,.xls,.csv" class="hidden">
+            <div id="progress-wrap" class="hidden" style="margin-top:12px"><div class="progress"><i id="progress"></i></div><div id="progress-txt" style="font-size:12px;color:var(--muted);margin-top:6px"></div></div>
+            <div id="import-result" style="margin-top:12px"></div>
+            <div style="margin-top:12px;display:flex;gap:8px">
+              <button class="btn btn-primary" id="btn-import" onclick="doImport()"><i class="fa-solid fa-upload"></i> Importar agora</button>
+              <button class="btn" onclick="doPreview()"><i class="fa-solid fa-eye"></i> Pré-visualizar</button>
+            </div>
+            <div id="preview-box" class="hidden" style="margin-top:14px"></div>
+          </div>
+          <div class="card" style="margin-top:16px">
+            <div class="card-head"><h3>Histórico de importações</h3><div style="display:flex;gap:8px"><button class="btn btn-sm" onclick="loadImports()"><i class="fa-solid fa-rotate"></i> Atualizar</button><button class="btn btn-sm btn-danger" onclick="deleteSelectedImports()" title="Eliminar selecionadas"><i class="fa-solid fa-trash"></i> Eliminar</button></div></div>
+            <div class="table-wrap"><table><thead><tr><th style="width:36px"><input type="checkbox" id="chk-all" onchange="toggleAllImports(this)"></th><th>#</th><th>Ficheiro</th><th>Fornecedor</th><th>Data</th><th>Total</th><th style="width:220px">Ações</th></tr></thead><tbody id="tbody-imports"></tbody></table></div>
+            <div style="padding:10px 14px;font-size:11px;color:var(--muted);border-top:1px solid var(--border)"><i class="fa-solid fa-lightbulb"></i> <b>Eliminar</b> remove permanentemente a importação. Se for a mais recente, o stock volta automaticamente para a anterior. <b>Restaurar</b> repõe o stock atual para essa importação sem apagar histórico.</div>
+          </div>
+          <!-- Modal detalhe importação -->
+          <div id="modal-import" class="hidden">
+            <div class="modal-bg" onclick="if(event.target===this) closeImportModal()">
+              <div class="modal">
+                <div class="modal-head"><h3 id="modal-title" style="font-size:15px">Detalhe da importação</h3><button class="btn btn-sm" onclick="closeImportModal()">✕</button></div>
+                <div class="modal-body">
+                  <div id="modal-meta" style="padding:12px 16px;font-size:13px;color:var(--muted);border-bottom:1px solid var(--border)"></div>
+                  <div class="table-wrap" style="max-height:55vh"><table><thead><tr><th>Referência</th><th>Descrição</th><th>Stock</th><th>Preço</th><th>Marca</th></tr></thead><tbody id="modal-tbody"></tbody></table></div>
+                </div>
+                <div class="modal-foot"><button class="btn" onclick="closeImportModal()">Fechar</button><button class="btn btn-primary" id="modal-restore" onclick="restoreFromModal()"><i class="fa-solid fa-rotate-left"></i> Restaurar como stock atual</button></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DEFINIÇÕES -->
+    <section id="tab-definicoes" class="hidden">
+      <div class="topbar"><div><h2>Definições</h2><p>Configurações gerais do ERP.</p></div></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div class="card card-pad">
+          <h3><i class="fa-solid fa-circle-half-stroke"></i> Aparência</h3>
+          <p style="font-size:13px;color:var(--muted);margin-top:4px">Alterna entre tema claro e escuro. A escolha fica guardada no navegador.</p>
+          <div style="display:flex;gap:10px;margin-top:12px;align-items:center">
+            <button class="btn" onclick="toggleThemeFromSettings()" id="btn-theme-settings"><i class="fa-solid fa-moon"></i> Ativar modo escuro</button>
+            <span id="theme-status" class="pill pill-gray"></span>
+          </div>
+          <hr style="margin:16px 0;border:none;border-top:1px solid var(--border)">
+          <h3>Limite padrão</h3>
+          <p style="font-size:13px;color:var(--muted);margin-top:4px">Usado quando monitoriza um produto sem definir limite. Por defeito 0 (alerta se ficar sem stock).</p>
+          <div style="display:flex;gap:10px;margin-top:12px;max-width:220px">
+            <input id="set-limite" class="input" type="number" min="0" value="0">
+            <button class="btn btn-primary" onclick="saveSettings()">Guardar</button>
+          </div>
+          <div id="settings-msg" style="margin-top:10px"></div>
+          <hr style="margin:16px 0;border:none;border-top:1px solid var(--border)">
+          <h3>Zona de perigo</h3>
+          <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+            <button class="btn btn-danger" onclick="clearAll()"><i class="fa-solid fa-trash"></i> Apagar todos os dados</button>
+            <button class="btn" onclick="clearMonitored()"><i class="fa-solid fa-star"></i> Limpar monitorizados</button>
+          </div>
+        </div>
+        <div class="card card-pad">
+          <h3>Estado da base de dados</h3>
+          <div id="db-stats" style="margin-top:10px"></div>
+        </div>
+      </div>
+      <div class="card card-pad" style="margin-top:16px">
+        <h3><i class="fa-solid fa-download"></i> Backup Completo</h3>
+        <p style="font-size:13px;color:var(--muted);margin-top:4px">Descarregue uma cópia de segurança com todos os dados (produtos, importações, monitorizados, verificações e definições) num único ficheiro ZIP.</p>
+        <div style="display:flex;gap:10px;margin-top:12px;align-items:center;flex-wrap:wrap">
+          <button class="btn btn-primary" onclick="downloadBackup()"><i class="fa-solid fa-download"></i> Download Backup</button>
+          <span style="font-size:12px;color:var(--muted)">ZIP com <b>backup_completo.xlsx</b> (5 sheets) + <b>backup.json</b> + <b>erp.db</b></span>
+        </div>
+        <div id="backup-msg" style="margin-top:10px"></div>
+      </div>
+      <div id="restore-section" class="card card-pad" style="margin-top:16px; border-left:4px solid var(--primary); box-shadow:0 4px 16px rgba(15,118,110,.08)">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px"><h3 style="margin:0"><i class="fa-solid fa-upload"></i> Restaurar Backup</h3><span class="pill pill-amber" style="font-size:10px">Inserir .zip / .json</span></div>
+        <p style="font-size:13px;color:var(--muted);margin-top:4px">Carregue um ficheiro <b>.zip</b> (backup descarregado) ou <b>.json</b> para repor todos os dados — <b>importações, produtos, verificados, monitorizados e definições</b>. Esta ação <b>substitui</b> os dados atuais.</p>
+        <div id="restore-drop" class="drop" style="margin-top:12px" onclick="document.getElementById('restore-file').click()">
+          <div style="font-size:32px"><i class="fa-solid fa-file-zipper"></i></div>
+          <div style="font-weight:700;margin-top:6px">Clique ou arraste o ficheiro de backup aqui</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:4px">.zip com backup.json ou .json direto</div>
+          <div id="restore-file-name" style="font-size:12px;color:var(--muted);margin-top:10px"></div>
+        </div>
+        <input type="file" id="restore-file" accept=".zip,.json" class="hidden">
+        <div style="margin-top:12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <button class="btn btn-primary" id="btn-restore" onclick="doRestore()"><i class="fa-solid fa-rotate-left"></i> Restaurar agora</button>
+          <span style="font-size:12px;color:var(--muted)">Aviso: irá apagar o stock atual e repor o do backup.</span>
+        </div>
+        <div id="restore-result" style="margin-top:12px"></div>
+        <details style="margin-top:10px"><summary style="font-size:12px;color:var(--muted);cursor:pointer">O que é restaurado?</summary><div style="font-size:12px;color:var(--muted);margin-top:6px">• <b>Definições</b> (limite padrão, tema)<br>• <b>Importações</b> (histórico completo com fornecedor)<br>• <b>Produtos</b> (stock por fornecedor)<br>• <b>Verificados</b> (dados das importações para comparação)<br>• <b>Monitorizados</b> (referências e limites)</div></details>
+      </div>
+    </section>
+
+    <!-- AJUDA -->
+    <section id="tab-ajuda" class="hidden">
+      <div class="topbar"><div><h2>Ajuda</h2><p>Guia rápido de cada área.</p></div></div>
+      <div class="card card-pad help">
+        <h4><i class="fa-solid fa-box"></i> Stock</h4>
+        <p>Mostra sempre o <b>stock da última importação</b> (TeamBike ou SportMed). Pode pesquisar por referência/descrição, filtrar por com/sem stock e por <b>marca do produto</b> (ex: TheraBand, Hartmann, Giro, Shimano — não é o fornecedor). Cada linha tem botão <b>Monitorizar</b>.</p>
+        <h4><i class="fa-solid fa-magnifying-glass"></i> Verificação</h4>
+        <p>Após cada nova importação, compara automaticamente com a anterior e agrupa em 5 categorias:</p>
+        <ul>
+          <li><b>Reposições</b> — estavam a 0 e passaram a &gt;0 (voltaram a ter stock)</li>
+          <li><b>Ruturas</b> — tinham stock e passaram a 0</li>
+          <li><b>Novos</b> — referências que aparecem pela primeira vez</li>
+          <li><b>Abaixo do Limite</b> — monitorizados cujo stock atual ≤ limite definido</li>
+          <li><b>Desaparecidos</b> — existiam antes mas já não vêm no ficheiro novo (o fornecedor pode ter descontinuado)</li>
+        </ul>
+        <h4><i class="fa-solid fa-star"></i> Monitorizados</h4>
+        <p>Lista de produtos que escolheu acompanhar. Aqui pode <b>alterar o limite</b> individual (ex: 3 unidades) e <b>deixar de monitorizar</b>. Se o stock ficar ≤ limite, aparece em “Abaixo do Limite” na Verificação.</p>
+        <h4><i class="fa-solid fa-upload"></i> Importar</h4>
+        <p>Área para carregar o Excel do fornecedor. O sistema <b>guarda sempre a importação anterior</b> (tabela <code>import_products</code>) por isso a comparação funciona sem perder histórico. Aceita colunas com nomes variados — deteta automaticamente <code>referencia, descricao, stock, preco, marca, categoria, ean</code>. Se não detetar, renomeie o cabeçalho no Excel.</p>
+        <h4><i class="fa-solid fa-gear"></i> Definições</h4>
+        <p>Define o <b>limite padrão</b> (usado quando monitoriza sem escolher limite), alterna <b>modo escuro/claro</b> e gere dados (apagar tudo / limpar monitorizados).</p>
+        <h4><i class="fa-solid fa-circle-half-stroke"></i> Modo Escuro</h4>
+        <p>Clique no botão <b><i class="fa-solid fa-moon"></i>/<i class="fa-solid fa-sun"></i></b> no topo da barra lateral ou em Definições para alternar. A escolha fica guardada no navegador e respeita a preferência do sistema na primeira visita.</p>
+        <h4><i class="fa-solid fa-folder-open"></i> Gerir Importações</h4>
+        <p>Na aba <b>Importar → Histórico</b> pode: <b><i class="fa-solid fa-eye"></i> Ver</b> (abre detalhe com todos os produtos importados), <b><i class="fa-solid fa-rotate-left"></i> Restaurar</b> (repõe o stock atual para essa importação antiga sem apagar histórico), <b><i class="fa-solid fa-trash"></i> Eliminar</b> (apaga definitivamente; se for a mais recente o stock volta para a anterior) e seleção múltipla com checkbox.</p>
+        <h4><i class="fa-solid fa-lightbulb"></i> Fluxo recomendado</h4>
+        <ol style="padding-left:18px;margin-top:6px">
+          <li>1ª vez: Importar → Verificar detecção → Importar</li>
+          <li>No Stock: pesquisar e <b>Monitorizar</b> os produtos chave</li>
+          <li>Nos Monitorizados: ajustar <b>limite</b> (ex: 5 para produtos críticos)</li>
+          <li>Semanalmente: Importar novo Excel → Verificar → agir nas Reposições/Ruturas/Abaixo do Limite</li>
+        </ol>
+        <h4><i class="fa-solid fa-file-excel"></i> Formato do Excel</h4>
+        <p>O ficheiro deve ter <b>uma linha de cabeçalho</b> e colunas como: <code>Referencia | Descricao | Stock | Preco | Marca | Categoria | EAN</code>. Nomes flexíveis: <code>Ref, Código, SKU, Qtd, Quantidade, P.V.P., Fornecedor...</code> são todos reconhecidos. Colunas extra são guardadas.</p>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+// ===== Tema escuro / claro =====
+function applyTheme(theme){
+  document.documentElement.setAttribute('data-theme', theme);
+  document.documentElement.setAttribute('data-theme', theme); // para CSS
+  document.body?.setAttribute('data-theme', theme);
+  // usar html attribute para CSS [data-theme]
+  document.documentElement.dataset.theme = theme;
+  // também aplicar no html element para CSS via [data-theme]
+  document.querySelector('html').setAttribute('data-theme', theme);
+  localStorage.setItem('erp-theme', theme);
+  const btn=document.getElementById('theme-toggle');
+  if(btn) btn.innerHTML = theme==='dark' ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
+}
+(function initTheme(){
+  const saved=localStorage.getItem('erp-theme');
+  const prefersDark=window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const theme = saved || (prefersDark ? 'dark' : 'light');
+  applyTheme(theme);
+})();
+document.getElementById('theme-toggle').addEventListener('click', ()=>{
+  const cur=document.documentElement.getAttribute('data-theme') || localStorage.getItem('erp-theme') || 'light';
+  applyTheme(cur==='dark' ? 'light' : 'dark');
+  updateThemeSettingsUI();
+});
+function toggleThemeFromSettings(){
+  const cur=document.documentElement.getAttribute('data-theme') || localStorage.getItem('erp-theme') || 'light';
+  applyTheme(cur==='dark' ? 'light' : 'dark');
+  updateThemeSettingsUI();
+}
+function updateThemeSettingsUI(){
+  const cur=document.documentElement.getAttribute('data-theme') || 'light';
+  const btn=document.getElementById('btn-theme-settings');
+  const pill=document.getElementById('theme-status');
+  if(btn) btn.innerHTML = cur==='dark' ? '<i class="fa-solid fa-sun"></i> Ativar modo claro' : '<i class="fa-solid fa-moon"></i> Ativar modo escuro';
+  if(pill) pill.innerHTML = cur==='dark' ? '<i class="fa-solid fa-moon"></i> Modo escuro ativo' : '<i class="fa-solid fa-sun"></i> Modo claro ativo';
+}
+
+let currentPage=1, perPage=50, verifData=null, currentVerifTab='reposicoes';
+let modalImportId=null;
+
+function nav(){
+  document.querySelectorAll('.nav button').forEach(b=>{
+    b.addEventListener('click',()=>{
+      document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+      const tab=b.dataset.tab;
+      document.querySelectorAll('main > section').forEach(s=>s.classList.add('hidden'));
+      document.getElementById('tab-'+tab).classList.remove('hidden');
+      if(tab==='stock') loadStock();
+      if(tab==='verificacao') loadVerificacao();
+      if(tab==='historico') loadHistorico();
+      if(tab==='monitorizados') loadMonitored();
+      if(tab==='importar') loadImports();
+      if(tab==='definicoes') { loadSettings(); updateThemeSettingsUI(); }
+    });
+  });
+}
+nav();
+
+async function fetchJSON(url, opts){ const r=await fetch(url, opts); const j=await r.json(); if(!r.ok) throw new Error(j.error||'Erro'); return j; }
+
+// ---- Stock
+async function loadStock(){
+  const search=document.getElementById('search').value;
+  const stock_filter=document.getElementById('filter-stock').value;
+  const marca=document.getElementById('filter-marca').value;
+  const supplier=document.getElementById('filter-supplier')?.value || 'todos';
+  const qs=new URLSearchParams({search, stock_filter, marca, supplier, page:currentPage, per_page:perPage});
+  const data=await fetchJSON('/api/products?'+qs);
+  const tbody=document.getElementById('tbody-stock');
+  const count=document.getElementById('stock-count');
+  count.textContent=data.total+' produtos';
+  document.getElementById('badge-total').textContent=data.total;
+  if(data.products.length===0){ tbody.innerHTML=''; document.getElementById('empty-stock').classList.remove('hidden');}
+  else{
+    document.getElementById('empty-stock').classList.add('hidden');
+    tbody.innerHTML=data.products.map(p=>{
+      const isMon=p.limite_monitorizado!==null && p.limite_monitorizado!==undefined;
+      const stockCls=p.stock===0?'stock-0':p.stock<=3?'stock-low':'stock-ok';
+      const extra=p.extra_json?JSON.parse(p.extra_json):null;
+      const extraStr=extra?Object.entries(extra).slice(0,2).map(([k,v])=>`<span class="pill pill-gray" style="font-size:10px">${k}: ${v}</span>`).join(' '):'';
+      const supPill = p.supplier==='SportMed' ? '<span class="pill pill-sportmed"><span class="supplier-dot dot-sportmed"></span> SportMed</span>' : p.supplier==='TeamBike' ? '<span class="pill pill-teambike"><span class="supplier-dot dot-teambike"></span> TeamBike</span>' : `<span class="pill pill-gray">${esc(p.supplier||'—')}</span>`;
+      return `<tr>
+        <td class="mono"><b>${esc(p.referencia)}</b> ${isMon?'<span class="pill pill-amber" style="font-size:10px"><i class="fa-solid fa-star"></i></span>':''}</td>
+        <td><div style="font-weight:600">${esc(p.descricao||'—')}</div><div style="margin-top:2px;display:flex;gap:4px;flex-wrap:wrap">${extraStr}</div></td>
+        <td>${esc(p.marca||'—')}</td>
+        <td>${supPill}</td>
+        <td style="text-align:center"><span class="${stockCls}">${p.stock}</span></td>
+        <td>${p.preco?Number(p.preco).toFixed(2)+' €':'—'}</td>
+        <td class="mono" style="font-size:11px">${esc(p.ean||'—')}</td>
+        <td>${isMon?`<button class="btn btn-sm btn-monitored" onclick="toggleMon('${escAttr(p.referencia)}',true)"><i class="fa-solid fa-star"></i> A acompanhar</button>`:`<button class="btn btn-sm" onclick="toggleMon('${escAttr(p.referencia)}',false)"><i class="fa-regular fa-star"></i> Monitorizar</button>`}</td>
+      </tr>`;
+    }).join('');
+  }
+  renderPagination(data.total);
+  loadMarcas();
+  loadStats();
+}
+function renderPagination(total){
+  const pages=Math.ceil(total/perPage)||1;
+  const el=document.getElementById('pagination');
+  let html=`<button onclick="changePage(-1)" ${currentPage===1?'disabled':''}>‹</button>`;
+  for(let i=1;i<=pages;i++){
+    if(i===1||i===pages||Math.abs(i-currentPage)<=2){
+      html+=`<button class="${i===currentPage?'active':''}" onclick="goPage(${i})">${i}</button>`;
+    } else if(Math.abs(i-currentPage)===3){ html+=`<span style="padding:0 4px;color:var(--muted)">…</span>`; }
+  }
+  html+=`<button onclick="changePage(1)" ${currentPage===pages?'disabled':''}>›</button>`;
+  el.innerHTML=html;
+}
+function changePage(d){ currentPage=Math.max(1, currentPage+d); loadStock(); }
+function goPage(p){ currentPage=p; loadStock(); }
+
+async function loadMarcas(){
+  const supplier=document.getElementById('filter-supplier')?.value || 'todos';
+  const marcas=await fetchJSON('/api/marcas?supplier='+encodeURIComponent(supplier));
+  const sel=document.getElementById('filter-marca');
+  const cur=sel.value;
+  sel.innerHTML='<option value="">Todas as marcas (produto)</option>'+marcas.map(m=>`<option ${m===cur?'selected':''}>${esc(m)}</option>`).join('');
+}
+
+async function loadStats(){
+  const s=await fetchJSON('/api/stats');
+  const el=document.getElementById('stats-stock');
+  const tb = s.por_fornecedor?.TeamBike?.total || 0;
+  const sm = s.por_fornecedor?.SportMed?.total || 0;
+  const tb_com = s.por_fornecedor?.TeamBike?.com_stock || 0;
+  const sm_com = s.por_fornecedor?.SportMed?.com_stock || 0;
+  const tb_pct = tb ? Math.round(tb_com/tb*100) : 0;
+  const sm_pct = sm ? Math.round(sm_com/sm*100) : 0;
+  const tot_pct = s.total ? Math.round(s.com_stock/s.total*100) : 0;
+  const fmt = n => n.toLocaleString('pt-PT');
+  el.innerHTML=`
+    <div class="stat" style="border-left:4px solid #0f766e">
+      <div class="stat-head"><div class="k"><i class="fa-solid fa-box" style="color:#0f766e"></i> TeamBike</div><span class="pct">${tb_pct}%</span></div>
+      <div class="v">${fmt(tb)}</div>
+      <div class="s">${fmt(tb_com)} com stock • ${fmt(tb - tb_com)} sem stock</div>
+      <div class="bar"><i style="width:${tb_pct}%;background:#0f766e"></i></div>
+    </div>
+    <div class="stat" style="border-left:4px solid #2563eb">
+      <div class="stat-head"><div class="k"><i class="fa-solid fa-box" style="color:#2563eb"></i> SportMed</div><span class="pct">${sm_pct}%</span></div>
+      <div class="v">${fmt(sm)}</div>
+      <div class="s">${fmt(sm_com)} com stock • ${fmt(sm - sm_com)} sem stock</div>
+      <div class="bar"><i style="width:${sm_pct}%;background:#2563eb"></i></div>
+    </div>
+    <div class="stat" style="border-left:4px solid var(--text)">
+      <div class="stat-head"><div class="k">Total</div><span class="pct">${tot_pct}% com stock</span></div>
+      <div class="v">${fmt(s.total)}</div>
+      <div class="s">${fmt(s.com_stock)} com stock • ${fmt(s.sem_stock)} sem stock</div>
+      <div class="bar"><i style="width:${tot_pct}%;background:var(--text)"></i></div>
+    </div>
+    <div class="stat" style="border-left:4px solid var(--red)">
+      <div class="stat-head"><div class="k">Sem stock</div><span class="pill pill-red" style="font-size:10px;padding:2px 6px">${s.total ? Math.round(s.sem_stock/s.total*100) : 0}%</span></div>
+      <div class="v" style="color:var(--red)">${fmt(s.sem_stock)}</div>
+      <div class="s">Produtos a 0 • ${fmt(s.monitorizados)} monitorizados</div>
+    </div>`;
+  document.getElementById('badge-mon').textContent=s.monitorizados;
+  // atualizar badges dos tabs de fornecedor
+  const ct=document.getElementById('count-todos'); if(ct) ct.textContent=s.total;
+  const cb=document.getElementById('count-teambike'); if(cb) cb.textContent=tb;
+  const cs=document.getElementById('count-sportmed'); if(cs) cs.textContent=sm;
+  // last import
+  const imports=await fetchJSON('/api/imports');
+  const last=imports[0];
+  const li=document.getElementById('last-import-info'); if(li) li.innerHTML= last? `Última importação:<br><b>${esc(last.filename)}</b> — <span class="pill ${last.supplier==='SportMed'?'pill-sportmed':'pill-teambike'}">${esc(last.supplier)}</span><br>${new Date(last.imported_at).toLocaleString('pt-PT')} · ${last.total_products} refs` : 'Sem importações';
+  const sub=document.getElementById('stock-subtitle');
+  if(sub){
+    if(last) sub.innerHTML=`Stock combinado — <b>TeamBike (${tb})</b> + <b>SportMed (${sm})</b> = ${s.total} produtos • última: <b>${esc(last.supplier)}</b> • ${esc(last.filename)} — filtre por fornecedor acima`;
+    else sub.textContent='Sem stock importado. Importe um ficheiro Excel na aba Importar.';
+  }
+  // atualizar título da grid se necessário
+  updateSupplierTabsUI();
+}
+function updateSupplierTabsUI(){
+  const cur=document.getElementById('filter-supplier')?.value || 'todos';
+  document.querySelectorAll('#supplier-tabs button').forEach(b=>b.classList.toggle('active', b.dataset.supplier===cur));
+}
+function setSupplier(sup){
+  const sel=document.getElementById('filter-supplier');
+  if(sel) sel.value=sup;
+  updateSupplierTabsUI();
+  currentPage=1;
+  loadStock();
+  loadMarcas();
+}
+
+async function toggleMon(ref, isMon){
+  if(isMon){
+    if(!confirm('Deixar de monitorizar '+ref+'?')) return;
+    await fetchJSON('/api/monitored/'+encodeURIComponent(ref), {method:'DELETE'});
+  } else {
+    const lim=prompt('Limite de stock para '+ref+' (0 = alerta se ficar sem stock):', '0');
+    if(lim===null) return;
+    await fetchJSON('/api/monitored', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({referencia:ref, limite:parseInt(lim)||0})});
+  }
+  loadStock(); loadMonitored(); loadStats();
+}
+
+document.getElementById('search').addEventListener('input', ()=>{ currentPage=1; loadStock(); });
+document.getElementById('filter-stock').addEventListener('change', ()=>{ currentPage=1; loadStock(); });
+document.getElementById('filter-marca').addEventListener('change', ()=>{ currentPage=1; loadStock(); });
+document.getElementById('filter-supplier').addEventListener('change', ()=>{ currentPage=1; loadStock(); loadMarcas(); updateSupplierTabsUI(); });
+
+// ---- Verificação
+async function loadVerificacao(){
+  const sup=document.getElementById('verif-supplier')?.value || '';
+  const qs=sup ? '?supplier='+encodeURIComponent(sup) : '';
+  const data=await fetchJSON('/api/verificacao'+qs);
+  verifData=data;
+  const badge=document.getElementById('badge-verif');
+  const totalBad=(data.totais? Object.values(data.totais).reduce((a,b)=>a+b,0):0);
+  badge.textContent=totalBad;
+  if(!data.tem_comparacao){
+    document.getElementById('verif-no-data').classList.remove('hidden');
+    document.getElementById('verif-has-data').classList.add('hidden');
+    return;
+  }
+  document.getElementById('verif-no-data').classList.add('hidden');
+  document.getElementById('verif-has-data').classList.remove('hidden');
+  const supBadge = (sup)=> sup==='SportMed' ? '<span class="pill pill-sportmed">SportMed</span>' : sup==='TeamBike' ? '<span class="pill pill-teambike">TeamBike</span>' : `<span class="pill pill-gray">${esc(sup)}</span>`;
+  document.getElementById('verif-meta').innerHTML=`Comparando ${supBadge(data.import_anterior.supplier)} <b>${esc(data.import_anterior.filename)}</b> (${new Date(data.import_anterior.imported_at).toLocaleString('pt-PT')}) → ${supBadge(data.import_atual.supplier)} <b>${esc(data.import_atual.filename)}</b> (${new Date(data.import_atual.imported_at).toLocaleString('pt-PT')})`;
+  document.getElementById('kpis-verif').innerHTML=`
+    <div class="kpi" style="border-left:4px solid var(--green)"><div class="k"><i class="fa-solid fa-check" style="color:var(--green)"></i> Reposições</div><div class="v">${data.totais.reposicoes}</div><div class="s">0 → >0</div></div>
+    <div class="kpi" style="border-left:4px solid var(--red)"><div class="k"><i class="fa-solid fa-ban" style="color:var(--red)"></i> Ruturas</div><div class="v">${data.totais.ruturas}</div><div class="s">>0 → 0</div></div>
+    <div class="kpi" style="border-left:4px solid var(--blue)"><div class="k"><i class="fa-solid fa-plus" style="color:var(--blue)"></i> Novos</div><div class="v">${data.totais.novos}</div><div class="s">1ª vez</div></div>
+    <div class="kpi" style="border-left:4px solid var(--accent)"><div class="k"><i class="fa-solid fa-triangle-exclamation" style="color:var(--accent)"></i> Abaixo limite</div><div class="v">${data.totais.abaixo_limite}</div><div class="s">monitorizados</div></div>
+    <div class="kpi" style="border-left:4px solid #64748b"><div class="k"><i class="fa-solid fa-ghost" style="color:#64748b"></i> Desaparecidos</div><div class="v">${data.totais.desaparecidos}</div><div class="s">não vêm no novo</div></div>
+  `;
+  document.getElementById('c-reposicoes').textContent='('+data.totais.reposicoes+')';
+  document.getElementById('c-ruturas').textContent='('+data.totais.ruturas+')';
+  document.getElementById('c-novos').textContent='('+data.totais.novos+')';
+  document.getElementById('c-abaixo').textContent='('+data.totais.abaixo_limite+')';
+  document.getElementById('c-desaparecidos').textContent='('+data.totais.desaparecidos+')';
+  renderVerifTab(currentVerifTab);
+}
+function renderVerifTab(tab){
+  currentVerifTab=tab;
+  document.querySelectorAll('#verif-tabs button').forEach(b=>b.classList.toggle('active', b.dataset.v===tab));
+  const rows=verifData[tab]||[];
+  const thead=document.getElementById('thead-verif');
+  const tbody=document.getElementById('tbody-verif');
+  const empty=document.getElementById('empty-verif');
+  if(rows.length===0){ thead.innerHTML=''; tbody.innerHTML=''; empty.classList.remove('hidden'); return; }
+  empty.classList.add('hidden');
+  if(tab==='reposicoes' || tab==='ruturas'){
+    thead.innerHTML='<tr><th>Referência</th><th>Descrição</th><th>Marca</th><th>Stock anterior</th><th>Stock atual</th><th></th></tr>';
+    tbody.innerHTML=rows.map(r=>`<tr><td class="mono"><b>${esc(r.referencia)}</b></td><td>${esc(r.descricao||'—')}</td><td>${esc(r.marca||'—')}</td><td style="text-align:center">${r.stock_anterior}</td><td style="text-align:center"><b style="color:${tab==='reposicoes'?'var(--green)':'var(--red)'}">${r.stock}</b></td><td><button class="btn btn-sm" onclick="quickMon('${escAttr(r.referencia)}')"><i class="fa-regular fa-star"></i> Monitorizar</button></td></tr>`).join('');
+  } else if(tab==='novos'){
+    thead.innerHTML='<tr><th>Referência</th><th>Descrição</th><th>Marca</th><th>Stock</th><th>Preço</th><th></th></tr>';
+    tbody.innerHTML=rows.map(r=>`<tr><td class="mono"><b>${esc(r.referencia)}</b></td><td>${esc(r.descricao||'—')}</td><td>${esc(r.marca||'—')}</td><td style="text-align:center"><b>${r.stock}</b></td><td>${r.preco?Number(r.preco).toFixed(2)+' €':'—'}</td><td><button class="btn btn-sm" onclick="quickMon('${escAttr(r.referencia)}')"><i class="fa-regular fa-star"></i> Monitorizar</button></td></tr>`).join('');
+  } else if(tab==='abaixo_limite'){
+    thead.innerHTML='<tr><th>Referência</th><th>Descrição</th><th>Stock</th><th>Limite</th><th>Estado</th></tr>';
+    tbody.innerHTML=rows.map(r=>{
+      const falta=r.limite - r.stock;
+      return `<tr><td class="mono"><b>${esc(r.referencia)}</b></td><td>${esc(r.descricao||'—')}</td><td style="text-align:center"><b style="color:var(--red)">${r.stock}</b></td><td style="text-align:center">${r.limite}</td><td><span class="pill pill-red">Abaixo por ${falta}</span></td></tr>`;
+    }).join('');
+  } else if(tab==='desaparecidos'){
+    thead.innerHTML='<tr><th>Referência</th><th>Descrição</th><th>Marca</th><th>Stock anterior</th></tr>';
+    tbody.innerHTML=rows.map(r=>`<tr><td class="mono"><b>${esc(r.referencia)}</b></td><td>${esc(r.descricao||'—')}</td><td>${esc(r.marca||'—')}</td><td style="text-align:center">${r.stock_anterior}</td></tr>`).join('');
+  }
+}
+document.querySelectorAll('#verif-tabs button').forEach(b=>b.addEventListener('click',()=>renderVerifTab(b.dataset.v)));
+async function quickMon(ref){ const lim=prompt('Limite para '+ref+':','0'); if(lim===null) return; await fetchJSON('/api/monitored',{method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({referencia:ref, limite:parseInt(lim)||0})}); alert('Adicionado aos monitorizados'); loadStats(); }
+
+// ---- Histórico Visual (mapa bonito desde sempre) ----
+let chartHistorico=null, chartProduto=null;
+async function loadHistorico(){
+  try{
+    const imports=await fetchJSON('/api/history');
+    const stats=await fetchJSON('/api/stats');
+    document.getElementById('hist-total').textContent=imports.length;
+    const first=imports[0]?.imported_at ? new Date(imports[0].imported_at).toLocaleDateString('pt-PT') : '—';
+    const last=imports[imports.length-1]?.imported_at ? new Date(imports[imports.length-1].imported_at).toLocaleDateString('pt-PT') : '—';
+    document.getElementById('hist-span').textContent= imports.length ? `${first} → ${last}` : '—';
+    document.getElementById('hist-teambike').textContent=(stats.por_fornecedor?.TeamBike?.total||0).toLocaleString('pt-PT');
+    document.getElementById('hist-sportmed').textContent=(stats.por_fornecedor?.SportMed?.total||0).toLocaleString('pt-PT');
+    // Timeline
+    const tl=document.getElementById('timeline');
+    const empty=document.getElementById('timeline-empty');
+    if(!imports.length){ tl.innerHTML=''; empty.classList.remove('hidden'); }
+    else {
+      empty.classList.add('hidden');
+      tl.innerHTML=imports.map((imp,i)=>{
+        const d=new Date(imp.imported_at);
+        const isTB=imp.supplier==='TeamBike';
+        const dotClass=isTB?'teambike':'sportmed';
+        const pillClass=isTB?'pill-teambike':'pill-sportmed';
+        const icon=isTB?'fa-box':'fa-pills';
+        return `<div class="timeline-item">
+          <div class="timeline-dot ${dotClass}"></div>
+          <div class="date">${d.toLocaleDateString('pt-PT')} • ${d.toLocaleTimeString('pt-PT',{hour:'2-digit',minute:'2-digit'})}</div>
+          <div class="file" title="${esc(imp.filename)}">${esc(imp.filename)}</div>
+          <div class="meta"><span class="pill ${pillClass}" style="font-size:10px">${esc(imp.supplier)}</span><span style="font-weight:700">${imp.total_products} refs</span></div>
+          <div class="meta"><span style="color:var(--muted)">#${imp.id}</span><span style="color:var(--muted)">${imp.stock_sum||0} un.</span></div>
+        </div>`;
+      }).join('');
+    }
+    // Chart
+    const ctx=document.getElementById('chart-historico');
+    if(ctx){
+      const labels=imports.map(i=> {
+        const d=new Date(i.imported_at);
+        const hh=d.toLocaleTimeString('pt-PT',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+        return `${d.toLocaleDateString('pt-PT',{day:'2-digit',month:'short'})} ${hh} (#${i.id})`;
+      });
+      const tbData=imports.map(i=> i.supplier==='TeamBike'? i.total_products : null);
+      const smData=imports.map(i=> i.supplier==='SportMed'? i.total_products : null);
+      const totalData=imports.map(i=> i.total_products);
+      const tbCount=tbData.filter(v=>v!==null).length;
+      const smCount=smData.filter(v=>v!==null).length;
+      const isDark = document.documentElement.getAttribute('data-theme')==='dark';
+      if(chartHistorico) chartHistorico.destroy();
+      chartHistorico=new Chart(ctx, {
+        type:'line',
+        data:{
+          labels,
+          datasets:[
+            {label:'TeamBike' + (tbCount===1?' (único)':''), data:tbData, borderColor: isDark ? '#2dd4bf' : '#000000', backgroundColor: isDark ? 'rgba(45,212,191,.18)' : 'rgba(0,0,0,.06)', tension:.35, borderWidth:3, pointRadius:6, pointHoverRadius:9, pointBackgroundColor: isDark ? '#5eead4' : '#000000', pointBorderColor:'#ffffff', pointBorderWidth:2.5, spanGaps:true, showLine:true, order:3},
+            {label:'SportMed', data:smData, borderColor: isDark ? '#60a5fa' : '#2563eb', backgroundColor: isDark ? 'rgba(96,165,250,.12)' : 'rgba(37,99,235,.08)', tension:.4, borderWidth:2.5, pointRadius:4, pointHoverRadius:6, pointBackgroundColor: isDark ? '#93c5fd' : '#2563eb', pointBorderColor:'#ffffff', pointBorderWidth:2, spanGaps:true, order:2},
+            {label:'Total', data:totalData, borderColor: isDark ? '#e2e8f0' : '#0f172a', backgroundColor: isDark ? 'rgba(226,232,240,.06)' : 'rgba(15,23,42,.05)', fill:true, tension:.4, borderWidth:2, pointRadius:3, pointHoverRadius:5, pointBackgroundColor: isDark ? '#e2e8f0' : '#0f172a', order:1}
+          ]
+        },
+        options:{
+          responsive:true, maintainAspectRatio:false,
+          interaction:{mode:'index', intersect:false},
+          plugins:{legend:{display:true, position:'bottom', labels:{usePointStyle:true, boxWidth:8, padding:14, font:{family:'Inter', weight:'600'}}, tooltip:{backgroundColor: isDark ? 'rgba(18,28,46,.95)' : 'rgba(15,23,42,.92)', titleFont:{family:'Inter', weight:'700'}, bodyFont:{family:'Inter'}, padding:10, cornerRadius:10, displayColors:true}}},
+          scales:{x:{grid:{display:false}, ticks:{font:{family:'Inter', size:11}, color: isDark ? '#94a3b8' : '#64748b'}}, y:{beginAtZero:true, grid:{color: isDark ? 'rgba(42,63,94,.5)' : 'rgba(226,232,240,.7)'}, ticks:{font:{family:'Inter'}, color: isDark ? '#94a3b8' : '#64748b'}}}
+        }
+      });
+    }
+    // Datalist for produto
+    const allProds=await fetchJSON('/api/products?per_page=200');
+    const dl=document.getElementById('hist-prod-list');
+    if(dl) dl.innerHTML=allProds.products.slice(0,200).map(p=>`<option value="${escAttr(p.referencia)}">`).join('');
+  }catch(e){ console.error('historico',e); }
+}
+async function loadProdutoHistorico(){
+  const ref=document.getElementById('hist-prod-search')?.value?.trim();
+  if(!ref) return alert('Escreve uma referência');
+  const info=document.getElementById('hist-prod-info');
+  info.textContent='A carregar...';
+  try{
+    const rows=await fetchJSON('/api/product_history/'+encodeURIComponent(ref));
+    if(!rows.length){ info.textContent='Sem histórico para '+ref; if(chartProduto){ chartProduto.destroy(); chartProduto=null; } return; }
+    info.innerHTML=`<b>${esc(ref)}</b> — ${rows.length} importações • de ${new Date(rows[0].imported_at).toLocaleDateString('pt-PT')} a ${new Date(rows[rows.length-1].imported_at).toLocaleDateString('pt-PT')} • marca: ${esc(rows[rows.length-1].marca||'—')}`;
+    const ctx=document.getElementById('chart-produto');
+    const labels=rows.map(r=> new Date(r.imported_at).toLocaleDateString('pt-PT',{day:'2-digit',month:'short',year:'2-digit'}));
+    const stocks=rows.map(r=> r.stock);
+    const prices=rows.map(r=> r.preco);
+    if(chartProduto) chartProduto.destroy();
+    chartProduto=new Chart(ctx, {
+      type:'line',
+      data:{
+        labels,
+        datasets:[
+          {label:'Stock', data:stocks, borderColor:'#0f766e', backgroundColor:'rgba(15,118,110,.15)', fill:true, tension:.35, yAxisID:'y', pointRadius:5, pointBackgroundColor:'#0f766e', borderWidth:2},
+          {label:'Preço €', data:prices, borderColor:'#f59e0b', backgroundColor:'rgba(245,158,11,.08)', tension:.35, yAxisID:'y1', pointRadius:3, borderDash:[6,4], borderWidth:1.5}
+        ]
+      },
+      options:{
+        responsive:true, maintainAspectRatio:false,
+        interaction:{mode:'index', intersect:false},
+        plugins:{legend:{display:true, position:'bottom', labels:{usePointStyle:true, boxWidth:8}}},
+        scales:{
+          x:{grid:{display:false}},
+          y:{type:'linear', position:'left', title:{display:true, text:'Stock'}, grid:{color:'rgba(226,232,240,.6)'}, beginAtZero:true},
+          y1:{type:'linear', position:'right', title:{display:true, text:'Preço €'}, grid:{display:false}, beginAtZero:true}
+        }
+      }
+    });
+  }catch(e){ info.textContent='Erro: '+e.message; }
+}
+
+// ---- Mapa Neural 3D Interligado ----
+let neuralNodes=[], neuralEdges=[], neuralRaf=null, neuralRotating=true, neuralRot=0, neuralScale=1, neuralPanX=0, neuralPanY=0, neuralDragging=false, neuralLastX=0, neuralLastY=0, neuralHover=null, neuralDragNode=null, neuralDragStartX=0, neuralDragStartY=0, neuralDidDrag=false, neuralExpanded=new Set();
+function neuralResetView(){ neuralRot=0; neuralScale=1; neuralPanX=0; neuralPanY=0; }
+function neuralToggleRotation(){ neuralRotating=!neuralRotating; const l=document.getElementById('neural-rot-label'); if(l) l.textContent=neuralRotating?'Pausar':'Rodar'; }
+async function initNeuralMap(){
+  const canvas=document.getElementById('neural-canvas');
+  if(!canvas) return;
+  const dpr=window.devicePixelRatio||1;
+  const rect=canvas.getBoundingClientRect();
+  canvas.width=rect.width*dpr; canvas.height=rect.height*dpr;
+  const ctx=canvas.getContext('2d');
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  let imports=[], products=[];
+  try{ imports=await fetchJSON('/api/history'); }catch(e){ imports=[]; }
+  try{ const r=await fetchJSON('/api/products?per_page=80'); products=r.products||[]; }catch(e){ products=[]; }
+  neuralNodes=[]; neuralEdges=[]; neuralExpanded=new Set();
+  const centerX=rect.width/2, centerY=rect.height/2;
+  const suppliers=[{name:'TeamBike', color:'#0f766e', bg:'#0f766e'}, {name:'SportMed', color:'#2563eb', bg:'#2563eb'}];
+  suppliers.forEach((sup,i)=>{
+    const angle=(i/suppliers.length)*Math.PI*2 - Math.PI/2;
+    const r=60;
+    neuralNodes.push({id:'sup_'+sup.name, label:sup.name, type:'supplier', x: Math.cos(angle)*r, y: Math.sin(angle)*r, z: (Math.random()-0.5)*40, r:18, color:sup.color, bg:sup.bg, draggable:true, imports: imports.filter(x=>x.supplier===sup.name).length});
+  });
+  const cats={};
+  products.forEach(p=>{ if(p.categoria) cats[p.categoria]=(cats[p.categoria]||0)+1; });
+  const topCats=Object.entries(cats).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  topCats.forEach(([cat,cnt],i)=>{
+    const angle=(i/topCats.length)*Math.PI*2;
+    const r=130 + Math.random()*20;
+    neuralNodes.push({id:'cat_'+cat, label:cat, type:'categoria', x: Math.cos(angle)*r, y: Math.sin(angle)*r, z: (Math.random()-0.5)*80, r: 10+Math.min(8, cnt/120), color:'#f59e0b', bg:'#f59e0b', cnt, draggable:true});
+  });
+  imports.forEach((imp,i)=>{
+    const angle=(i/imports.length)*Math.PI*2 + 0.5;
+    const r=200 + (i%2)*30;
+    const z=(i%3-1)*60;
+    neuralNodes.push({id:'imp_'+imp.id, label:imp.filename, type:'import', x: Math.cos(angle)*r, y: Math.sin(angle)*r, z, r:8+Math.min(6, imp.total_products/1800), color: imp.supplier==='TeamBike'?'#0f766e':'#2563eb', bg: imp.supplier==='TeamBike'?'#0f766e':'#2563eb', imp, draggable:true});
+  });
+  const byId={}; neuralNodes.forEach(n=>byId[n.id]=n);
+  imports.forEach(imp=>{
+    const supNode=byId['sup_'+imp.supplier];
+    const impNode=byId['imp_'+imp.id];
+    if(supNode && impNode) neuralEdges.push({a:supNode, b:impNode, w:1});
+  });
+  topCats.forEach(([cat])=>{
+    const catNode=byId['cat_'+cat];
+    suppliers.forEach(sup=>{
+      const supNode=byId['sup_'+sup.name];
+      if(catNode && supNode) neuralEdges.push({a:supNode, b:catNode, w:0.4});
+    });
+  });
+  topCats.slice(0,4).forEach(([cat])=>{
+    const catNode=byId['cat_'+cat];
+    imports.slice(0,6).forEach(imp=>{
+      const impNode=byId['imp_'+imp.id];
+      if(catNode && impNode && Math.random()>0.5) neuralEdges.push({a:catNode, b:impNode, w:0.25});
+    });
+  });
+
+  const tooltip=document.getElementById('neural-tooltip');
+  function getNodeAt(mx,my){
+    for(const n of neuralNodes){
+      const p=project3D(n.x, n.y, n.z);
+      const dx=mx - (centerX + p.x*neuralScale + neuralPanX);
+      const dy=my - (centerY + p.y*neuralScale + neuralPanY);
+      const dist=Math.hypot(dx,dy);
+      if(dist < n.r*neuralScale + 10) return n;
+    }
+    return null;
+  }
+  canvas.addEventListener('mousemove', e=>{
+    const r=canvas.getBoundingClientRect();
+    const mx=e.clientX - r.left, my=e.clientY - r.top;
+    if(neuralDragging && neuralDragNode){
+      const dx=e.clientX - neuralLastX;
+      const dy=e.clientY - neuralLastY;
+      const cos=Math.cos(neuralRot), sin=Math.sin(neuralRot);
+      // Inverter rotação Y para que o arrasto siga o rato em qualquer ângulo
+      neuralDragNode.x += (dx * cos) / neuralScale;
+      neuralDragNode.z += (-dx * sin) / neuralScale;
+      neuralDragNode.y += dy / neuralScale;
+      neuralLastX=e.clientX; neuralLastY=e.clientY;
+      neuralDidDrag=true;
+      return;
+    }
+    neuralHover=getNodeAt(mx,my);
+    if(neuralHover){
+      tooltip.style.left=(e.clientX - r.left + 14)+'px'; tooltip.style.top=(e.clientY - r.top - 32)+'px';
+      let extra='';
+      if(neuralHover.type==='import') extra=`<br><span style="opacity:.8">#${neuralHover.imp.id} • ${neuralHover.imp.total_products} refs • clique para expandir produtos</span>`;
+      else if(neuralHover.type==='supplier') extra=`<br><span style="opacity:.8">${neuralHover.imports} importações • arrasta para mover</span>`;
+      else if(neuralHover.type==='produto') extra=`<br><span style="opacity:.8">stock ${neuralHover.stock} • ${neuralHover.marca||''}</span>`;
+      else if(neuralHover.cnt) extra=`<br><span style="opacity:.8">${neuralHover.cnt} produtos</span>`;
+      tooltip.innerHTML=`<b>${esc(neuralHover.label)}</b><br><span style="opacity:.8">${neuralHover.type}</span>${extra}`;
+      tooltip.style.display='block'; canvas.style.cursor='grab';
+    } else {
+      tooltip.style.display='none'; canvas.style.cursor= neuralDragging?'grabbing':'grab';
+    }
+  });
+  canvas.addEventListener('mouseleave', ()=>{ tooltip.style.display='none'; neuralDragging=false; neuralDragNode=null; });
+  canvas.addEventListener('mousedown', e=>{
+    const r=canvas.getBoundingClientRect();
+    const mx=e.clientX - r.left, my=e.clientY - r.top;
+    const hit=getNodeAt(mx,my);
+    if(hit && hit.draggable){
+      neuralDragNode=hit; neuralDidDrag=false;
+      neuralDragging=true; neuralLastX=e.clientX; neuralLastY=e.clientY;
+      canvas.style.cursor='grabbing'; e.preventDefault();
+    } else {
+      neuralDragNode=null; neuralDragging=true; neuralLastX=e.clientX; neuralLastY=e.clientY;
+      canvas.style.cursor='grabbing';
+    }
+  });
+  window.addEventListener('mouseup', async (e)=>{
+    if(neuralDragNode && !neuralDidDrag){
+      // clique sem arrastar → expandir se for import
+      if(neuralDragNode.type==='import'){
+        const impId=neuralDragNode.imp.id;
+        if(neuralExpanded.has(impId)){
+          // colapsar: remover produtos desse import
+          const toRemove=new Set(neuralNodes.filter(n=>n.parentImp===impId).map(n=>n.id));
+          neuralNodes=neuralNodes.filter(n=>!toRemove.has(n.id));
+          neuralEdges=neuralEdges.filter(ed=> !toRemove.has(ed.a.id) && !toRemove.has(ed.b.id));
+          neuralExpanded.delete(impId);
+        } else {
+          try{
+            const data=await fetchJSON('/api/imports/'+impId);
+            const prods=data.products||[];
+            // limitar a 18 para não poluir visual
+            const sample=prods.slice(0,18);
+            const baseAngle=Math.random()*Math.PI*2;
+            sample.forEach((p,i)=>{
+              const angle=baseAngle + (i/sample.length)*Math.PI*2;
+              const r= 38 + Math.random()*12;
+              const prodNode={id:'prod_'+impId+'_'+p.referencia, label:p.referencia, type:'produto', x: neuralDragNode.x + Math.cos(angle)*r, y: neuralDragNode.y + Math.sin(angle)*r, z: neuralDragNode.z + (Math.random()-0.5)*30, r:5, color: p.stock>0?'#059669':'#dc2626', bg: p.stock>0?'#059669':'#dc2626', stock:p.stock, marca:p.marca, parentImp:impId, draggable:true};
+              neuralNodes.push(prodNode);
+              neuralEdges.push({a:neuralDragNode, b:prodNode, w:0.6});
+            });
+            neuralExpanded.add(impId);
+          }catch(err){ console.error(err); }
+        }
+      }
+    }
+    neuralDragging=false; neuralDragNode=null; neuralDidDrag=false; canvas.style.cursor='grab';
+  });
+  // Pan da vista (quando arrasta o fundo, não uma bolinha)
+  canvas.addEventListener('mousemove', e=>{
+    if(!neuralDragging || neuralDragNode) return;
+    const dx=e.clientX - neuralLastX, dy=e.clientY - neuralLastY;
+    neuralPanX+=dx; neuralPanY+=dy; neuralLastX=e.clientX; neuralLastY=e.clientY;
+  });
+  // O pan já está no mousemove acima quando neuralDragNode==null, mas temos duplicado - vamos manter um só
+  canvas.addEventListener('wheel', e=>{ e.preventDefault(); const d=e.deltaY>0?0.92:1.08; neuralScale=Math.min(2.2, Math.max(0.6, neuralScale*d)); }, {passive:false});
+  canvas.addEventListener('touchstart', e=>{ if(e.touches[0]){ const t=e.touches[0]; const r=canvas.getBoundingClientRect(); const hit=getNodeAt(t.clientX - r.left, t.clientY - r.top); if(hit){ neuralDragNode=hit; } neuralDragging=true; neuralLastX=t.clientX; neuralLastY=t.clientY; }}, {passive:true});
+  canvas.addEventListener('touchmove', e=>{ if(!neuralDragging) return; const t=e.touches[0]; if(!t) return; if(neuralDragNode){ const dx=t.clientX-neuralLastX, dy=t.clientY-neuralLastY; const cos=Math.cos(neuralRot), sin=Math.sin(neuralRot); neuralDragNode.x+=(dx*cos)/neuralScale; neuralDragNode.z+=(-dx*sin)/neuralScale; neuralDragNode.y+=dy/neuralScale; } else { const dx=t.clientX-neuralLastX, dy=t.clientY-neuralLastY; neuralPanX+=dx; neuralPanY+=dy; } neuralLastX=t.clientX; neuralLastY=t.clientY; e.preventDefault(); }, {passive:false});
+  window.addEventListener('touchend', ()=>{ neuralDragging=false; neuralDragNode=null; });
+
+  function project3D(x,y,z){
+    const cos=Math.cos(neuralRot), sin=Math.sin(neuralRot);
+    const nx=x*cos - z*sin;
+    const nz=x*sin + z*cos;
+    const perspective= 380 / (380 + nz + 200);
+    return {x: nx*perspective, y: y*perspective, scale:perspective, z:nz};
+  }
+
+  function resolveCollisions(){
+    // Colisão: bolinhas não se sobrepõem
+    for(let i=0;i<neuralNodes.length;i++){
+      for(let j=i+1;j<neuralNodes.length;j++){
+        const a=neuralNodes[i], b=neuralNodes[j];
+        const dx=b.x - a.x, dy=b.y - a.y, dz=b.z - a.z;
+        const dist=Math.hypot(dx,dy,dz) || 0.01;
+        const minDist=(a.r + b.r + 14);
+        if(dist < minDist){
+          const overlap=(minDist - dist)/2;
+          const nx=dx/dist, ny=dy/dist, nz=dz/dist;
+          const moveA = a.type==='supplier' ? 0.25 : 0.5;
+          const moveB = b.type==='supplier' ? 0.25 : 0.5;
+          const isADrag = neuralDragNode && neuralDragNode.id===a.id;
+          const isBDrag = neuralDragNode && neuralDragNode.id===b.id;
+          if(!isADrag){ a.x -= nx*overlap*moveA; a.y -= ny*overlap*moveA; a.z -= nz*overlap*moveA; }
+          if(!isBDrag){ b.x += nx*overlap*moveB; b.y += ny*overlap*moveB; b.z += nz*overlap*moveB; }
+        }
+      }
+    }
+  }
+  function draw(){
+    resolveCollisions();
+    const w=rect.width, h=rect.height;
+    ctx.clearRect(0,0,w,h);
+    const projectedEdges=neuralEdges.map(e=>{
+      const pa=project3D(e.a.x,e.a.y,e.a.z), pb=project3D(e.b.x,e.b.y,e.b.z);
+      const midZ=(pa.z+pb.z)/2;
+      return {a:pa,b:pb, w:e.w, z:midZ};
+    }).sort((a,b)=>a.z-b.z);
+    projectedEdges.forEach(e=>{
+      const alpha= 0.18 + e.w*0.25;
+      const grad=ctx.createLinearGradient(centerX+e.a.x*neuralScale+neuralPanX, centerY+e.a.y*neuralScale+neuralPanY, centerX+e.b.x*neuralScale+neuralPanX, centerY+e.b.y*neuralScale+neuralPanY);
+      grad.addColorStop(0, `rgba(100,116,139,${alpha})`);
+      grad.addColorStop(1, `rgba(37,99,235,${alpha})`);
+      ctx.strokeStyle=grad;
+      ctx.lineWidth= (e.w*1.2 + 0.3)* Math.max(0.5, (e.a.scale+e.b.scale)/2) * neuralScale;
+      ctx.beginPath();
+      ctx.moveTo(centerX+e.a.x*neuralScale+neuralPanX, centerY+e.a.y*neuralScale+neuralPanY);
+      const mx=(centerX+e.a.x*neuralScale+neuralPanX + centerX+e.b.x*neuralScale+neuralPanX)/2;
+      const my=(centerY+e.a.y*neuralScale+neuralPanY + centerY+e.b.y*neuralScale+neuralPanY)/2 - 10*neuralScale;
+      ctx.quadraticCurveTo(mx,my, centerX+e.b.x*neuralScale+neuralPanX, centerY+e.b.y*neuralScale+neuralPanY);
+      ctx.stroke();
+    });
+    const projNodes=neuralNodes.map(n=>{
+      const p=project3D(n.x,n.y,n.z);
+      return {...n, px:centerX+p.x*neuralScale+neuralPanX, py:centerY+p.y*neuralScale+neuralPanY, scale:p.scale};
+    }).sort((a,b)=>a.scale-b.scale);
+    projNodes.forEach(n=>{
+      const isHover=neuralHover && neuralHover.id===n.id;
+      const isDragged=neuralDragNode && neuralDragNode.id===n.id;
+      const r=n.r* n.scale * neuralScale * (isHover||isDragged?1.3:1);
+      ctx.shadowColor=n.color; ctx.shadowBlur=isHover||isDragged?20:10; ctx.shadowOffsetY=2;
+      if(isDragged){ ctx.shadowColor='#0f766e'; ctx.shadowBlur=22; }
+      ctx.fillStyle=n.bg;
+      ctx.beginPath(); ctx.arc(n.px, n.py, r, 0, Math.PI*2); ctx.fill();
+      ctx.shadowBlur=0;
+      ctx.strokeStyle=isDragged?'#0f766e':'rgba(255,255,255,.9)'; ctx.lineWidth=(isDragged?3:2) * n.scale; ctx.stroke();
+      if(n.type!=='import' || isHover || n.scale>0.85 || n.type==='produto'){
+        ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--text')||'#0f172a';
+        if(n.type==='supplier') ctx.fillStyle=n.color;
+        if(n.type==='produto') ctx.fillStyle=n.color;
+        ctx.font=`${n.type==='supplier'? '800' : '600'} ${n.type==='supplier'?12: n.type==='produto'?9:10}px Inter`;
+        ctx.textAlign='center';
+        const label = n.type==='produto' ? n.label : (n.label.length>18? n.label.slice(0,17)+'…' : n.label);
+        ctx.fillText(label, n.px, n.py + r + 12);
+        if(n.type==='import' && isHover){
+          ctx.font='500 10px Inter'; ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--muted')||'#64748b';
+          ctx.fillText(n.imp.total_products+' refs • clique para '+(neuralExpanded.has(n.imp.id)?'colapsar':'expandir'), n.px, n.py + r + 24);
+        }
+      }
+    });
+    const statsEl=document.getElementById('neural-stats');
+    if(statsEl) statsEl.textContent=`${neuralNodes.length} nós • ${neuralEdges.length} ligações • ${neuralRotating?'a rodar':''} • arrasta bolinhas`;
+    if(neuralRotating && !neuralDragging && !neuralDragNode) neuralRot+=0.002;
+    neuralRaf=requestAnimationFrame(draw);
+  }
+  if(neuralRaf) cancelAnimationFrame(neuralRaf);
+  draw();
+  let resizeTimer;
+  window.addEventListener('resize', ()=>{
+    clearTimeout(resizeTimer);
+    resizeTimer=setTimeout(()=>{ initNeuralMap(); }, 300);
+  }, {once:true});
+}
+const _origLoadHistorico2 = loadHistorico;
+loadHistorico = async function(){ await _origLoadHistorico2(); setTimeout(initNeuralMap, 120); };
+
+loadHistorico = async function(){ await _origLoadHistorico2(); setTimeout(initNeuralMap, 120); };
+
+// ---- Monitorizados
+
+
+// ---- Monitorizados
+
+async function loadMonitored(){
+  const rows=await fetchJSON('/api/monitored');
+  document.getElementById('mon-count').textContent=rows.length+' produtos monitorizados';
+  document.getElementById('badge-mon').textContent=rows.length;
+  const tbody=document.getElementById('tbody-mon');
+  const empty=document.getElementById('empty-mon');
+  if(rows.length===0){ tbody.innerHTML=''; empty.classList.remove('hidden'); return; }
+  empty.classList.add('hidden');
+  tbody.innerHTML=rows.map(r=>{
+    const desaparecido=r.stock===null || r.stock===undefined;
+    const stockDisplay=desaparecido?'<span class="pill pill-gray">desaparecido</span>':`<b class="${r.stock<=r.limite?'stock-0':'stock-ok'}">${r.stock}</b>`;
+    const estado=desaparecido?'<span class="pill pill-gray"><i class="fa-solid fa-ghost"></i> Desaparecido</span>': r.stock<=r.limite?'<span class="pill pill-red"><i class="fa-solid fa-triangle-exclamation"></i> Abaixo do limite</span>':'<span class="pill pill-green"><i class="fa-solid fa-check"></i> OK</span>';
+    return `<tr>
+      <td class="mono"><b>${esc(r.referencia)}</b></td>
+      <td>${esc(r.descricao||'—')}<br><span style="font-size:11px;color:var(--muted)">${esc(r.marca||'')}</span></td>
+      <td style="text-align:center">${stockDisplay}</td>
+      <td style="text-align:center"><input type="number" value="${r.limite}" min="0" style="width:70px" class="input" id="lim-${escAttr(r.referencia)}"> <button class="btn btn-sm" onclick="saveLimite('${escAttr(r.referencia)}')"><i class="fa-solid fa-floppy-disk"></i></button></td>
+      <td>${estado}</td>
+      <td><button class="btn btn-sm btn-danger" onclick="removeMon('${escAttr(r.referencia)}')">✕ Remover</button></td>
+    </tr>`;
+  }).join('');
+}
+async function saveLimite(ref){
+  const val=document.getElementById('lim-'+ref).value;
+  await fetchJSON('/api/monitored/'+encodeURIComponent(ref), {method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify({limite:parseInt(val)||0})});
+  loadMonitored(); loadVerificacao();
+}
+async function removeMon(ref){
+  if(!confirm('Remover '+ref+' dos monitorizados?')) return;
+  await fetchJSON('/api/monitored/'+encodeURIComponent(ref), {method:'DELETE'});
+  loadMonitored(); loadStock(); loadStats();
+}
+async function clearMonitored(){
+  if(!confirm('Limpar TODOS os monitorizados?')) return;
+  await fetchJSON('/api/clear', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({tipo:'monitorizados'})});
+  loadMonitored(); loadStock();
+}
+
+// ---- Importar
+const drop=document.getElementById('drop'), fileInput=document.getElementById('file');
+['dragenter','dragover'].forEach(e=>drop.addEventListener(e, ev=>{ev.preventDefault(); drop.classList.add('drag')}));
+['dragleave','drop'].forEach(e=>drop.addEventListener(e, ev=>{ev.preventDefault(); drop.classList.remove('drag')}));
+drop.addEventListener('drop', ev=>{ const f=ev.dataTransfer.files[0]; if(f){ fileInput.files=ev.dataTransfer.files; updateFileName(); }});
+fileInput.addEventListener('change', updateFileName);
+function updateFileName(){
+  const f=fileInput.files[0];
+  document.getElementById('file-name').textContent=f? 'Selecionado: '+f.name+' ('+(f.size/1024).toFixed(1)+' KB)':'';
+  if(f){
+    const low=f.name.toLowerCase();
+    const sel=document.getElementById('supplier');
+    if(low.includes('sportmed') || low.includes('stocks') || low.includes('stocksti')) sel.value='SportMed';
+    else if(low.includes('teambike') || low.includes('team_bike') || low.includes('team-bike')) sel.value='TeamBike';
+  }
+}
+
+async function doPreview(){
+  const f=fileInput.files[0]; if(!f) return alert('Escolha um ficheiro');
+  const fd=new FormData(); fd.append('file', f);
+  try{
+    const data=await fetchJSON('/api/preview', {method:'POST', body:fd});
+    const box=document.getElementById('preview-box');
+    box.classList.remove('hidden');
+    box.innerHTML=`<div class="notice notice-info">Colunas detetadas: <b>${esc(JSON.stringify(data.mapping))}</b> — ${data.total} produtos</div>
+      ${data.warnings&&data.warnings.length? '<div class="notice notice-err" style="margin-top:8px">'+data.warnings.map(esc).join('<br>')+'</div>':''}
+      <div style="margin-top:10px;overflow:auto"><table><thead><tr><th>Referência</th><th>Descrição</th><th>Stock</th><th>Preço</th><th>Marca</th></tr></thead><tbody>${data.preview.map(p=>`<tr><td class="mono">${esc(p.referencia)}</td><td>${esc(p.descricao||'—')}</td><td>${p.stock}</td><td>${p.preco}</td><td>${esc(p.marca||'—')}</td></tr>`).join('')}</tbody></table></div>`;
+  }catch(e){ alert(e.message); }
+}
+
+async function doImport(){
+  const f=fileInput.files[0]; if(!f) return alert('Escolha um ficheiro primeiro');
+  const supplier=document.getElementById('supplier').value;
+  const fd=new FormData(); fd.append('file', f); fd.append('supplier', supplier);
+  const btn=document.getElementById('btn-import');
+  btn.disabled=true; btn.textContent='A importar...';
+  document.getElementById('progress-wrap').classList.remove('hidden');
+  document.getElementById('progress').style.width='60%';
+  document.getElementById('progress-txt').textContent='A processar...';
+  try{
+    const data=await fetchJSON('/api/import', {method:'POST', body:fd});
+    document.getElementById('progress').style.width='100%';
+    document.getElementById('progress-txt').textContent='Concluído!';
+    let html=`<div class="notice notice-ok"><i class="fa-solid fa-circle-check"></i> <b>${data.total} produtos importados</b> de <b>${esc(data.filename)}</b> — <span class="pill ${supplier==='SportMed'?'pill-sportmed':'pill-teambike'}">${esc(supplier)}</span><br>Colunas: ${esc(JSON.stringify(data.mapping))}</div>`;
+    if(data.warnings&&data.warnings.length) html+=`<div class="notice notice-err" style="margin-top:8px">${data.warnings.join('<br>')}</div>`;
+    if(data.tem_comparacao && data.verificacao){
+      const v=data.verificacao;
+      const totalChanges=(v.reposicoes||0)+(v.ruturas||0)+(v.novos||0)+(v.abaixo_limite||0)+(v.desaparecidos||0);
+      if(totalChanges===0){
+        html+=`<div class="notice notice-info" style="margin-top:8px"><i class="fa-solid fa-circle-check"></i> Sem alterações em relação à última importação de <b>${esc(supplier)}</b> — stock idêntico. <a href="#" onclick="document.querySelector('[data-tab=verificacao]').click(); loadVerificacao(); return false">ver verificação</a></div>`;
+      } else {
+        html+=`<div class="notice notice-info" style="margin-top:8px"><i class="fa-solid fa-magnifying-glass"></i> Comparação: Reposições ${v.reposicoes} · Ruturas ${v.ruturas} · Novos ${v.novos} · Abaixo limite ${v.abaixo_limite} · Desaparecidos ${v.desaparecidos} — <a href="#" onclick="document.querySelector('[data-tab=verificacao]').click(); loadVerificacao(); return false">ver detalhes</a></div>`;
+      }
+    } else {
+      html+=`<div class="notice notice-info" style="margin-top:8px">Primeira importação deste fornecedor guardada. Na próxima já haverá comparação.</div>`;
+    }
+    document.getElementById('import-result').innerHTML=html;
+    // Limpar ficheiro para não re-importar por engano
+    try{ fileInput.value=''; document.getElementById('file-name').textContent=''; document.getElementById('preview-box').innerHTML=''; document.getElementById('preview-box').classList.add('hidden'); }catch(e){}
+    loadImports(); loadStock(); loadVerificacao(); loadStats();
+  }catch(e){
+    document.getElementById('import-result').innerHTML=`<div class="notice notice-err"><i class="fa-solid fa-circle-xmark"></i> ${esc(e.message)}</div>`;
+  }finally{
+    btn.disabled=false; btn.innerHTML='<i class="fa-solid fa-check"></i> Importado!';
+    setTimeout(()=>{ btn.innerHTML='<i class="fa-solid fa-upload"></i> Importar agora'; }, 2000);
+    setTimeout(()=>{ document.getElementById('progress-wrap').classList.add('hidden'); document.getElementById('progress').style.width='0'; }, 1500);
+  }
+}
+
+async function loadImports(){
+  const rows=await fetchJSON('/api/imports');
+  const tbody=document.getElementById('tbody-imports');
+  if(rows.length===0) tbody.innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--muted)">Sem importações</td></tr>';
+  else tbody.innerHTML=rows.map(r=>`<tr>
+    <td><input type="checkbox" class="chk-import" value="${r.id}"></td>
+    <td>#${r.id}</td>
+    <td><b>${esc(r.filename)}</b></td>
+    <td>${esc(r.supplier||'—')}</td>
+    <td>${new Date(r.imported_at).toLocaleString('pt-PT')}</td>
+    <td><b>${r.total_products}</b></td>
+    <td style="display:flex;gap:6px;flex-wrap:wrap">
+      <button class="btn btn-sm" onclick="viewImport(${r.id})" title="Ver produtos desta importação"><i class="fa-solid fa-eye"></i> Ver</button>
+      <button class="btn btn-sm" onclick="restoreImport(${r.id})" title="Repor stock atual para esta importação"><i class="fa-solid fa-rotate-left"></i> Restaurar</button>
+      <button class="btn btn-sm btn-danger" onclick="deleteImport(${r.id})" title="Eliminar importação"><i class="fa-solid fa-trash"></i></button>
+    </td>
+  </tr>`).join('');
+}
+
+function toggleAllImports(chk){
+  document.querySelectorAll('.chk-import').forEach(c=>c.checked=chk.checked);
+}
+async function deleteImport(id){
+  if(!confirm('Eliminar importação #'+id+'? Esta ação é irreversível. Se for a mais recente, o stock volta para a importação anterior.')) return;
+  await fetchJSON('/api/imports/'+id, {method:'DELETE'});
+  loadImports(); loadStock(); loadVerificacao(); loadStats();
+}
+async function deleteSelectedImports(){
+  const ids=[...document.querySelectorAll('.chk-import:checked')].map(c=>c.value);
+  if(ids.length===0) return alert('Selecione pelo menos uma importação');
+  if(!confirm('Eliminar '+ids.length+' importação(ões)?')) return;
+  for(const id of ids){
+    await fetchJSON('/api/imports/'+id, {method:'DELETE'});
+  }
+  document.getElementById('chk-all').checked=false;
+  loadImports(); loadStock(); loadVerificacao(); loadStats();
+}
+async function restoreImport(id){
+  if(!confirm('Restaurar stock atual para a importação #'+id+'? O stock atual será substituído pelos dados dessa importação.')) return;
+  await fetchJSON('/api/imports/'+id+'/restore', {method:'POST'});
+  alert('Stock restaurado!');
+  loadStock(); loadVerificacao(); loadStats();
+}
+async function viewImport(id){
+  const data=await fetchJSON('/api/imports/'+id);
+  modalImportId=id;
+  document.getElementById('modal-import').classList.remove('hidden');
+  document.getElementById('modal-title').textContent='#'+data.import.id+' — '+data.import.filename;
+  document.getElementById('modal-meta').innerHTML=`<b>${esc(data.import.supplier||'—')}</b> · ${new Date(data.import.imported_at).toLocaleString('pt-PT')} · <b>${data.products.length} produtos</b> <span style="margin-left:10px" class="pill pill-gray">#${data.import.id}</span>`;
+  document.getElementById('modal-tbody').innerHTML=data.products.slice(0,300).map(p=>`<tr><td class="mono">${esc(p.referencia)}</td><td>${esc(p.descricao||'—')}</td><td style="text-align:center">${p.stock}</td><td>${p.preco?Number(p.preco).toFixed(2)+' €':'—'}</td><td>${esc(p.marca||'—')}</td></tr>`).join('') + (data.products.length>300?`<tr><td colspan="5" style="text-align:center;color:var(--muted)">... e mais ${data.products.length-300} produtos</td></tr>`:'');
+}
+function closeImportModal(){ document.getElementById('modal-import').classList.add('hidden'); modalImportId=null; }
+async function restoreFromModal(){ if(modalImportId) { await restoreImport(modalImportId); closeImportModal(); } }
+
+// ---- Definições
+async function loadSettings(){
+  const s=await fetchJSON('/api/settings');
+  document.getElementById('set-limite').value=s.limite_padrao;
+  const stats=await fetchJSON('/api/stats');
+  const imports=await fetchJSON('/api/imports');
+  document.getElementById('db-stats').innerHTML=`
+    <div style="display:grid;gap:8px;font-size:13px">
+      <div><i class="fa-solid fa-box"></i> Total produtos: <b>${stats.total}</b></div><div><i class="fa-solid fa-check" style="color:var(--green)"></i> Com stock: <b>${stats.com_stock}</b></div><div><i class="fa-solid fa-ban" style="color:var(--red)"></i> Sem stock: <b>${stats.sem_stock}</b></div><div><i class="fa-solid fa-star" style="color:var(--accent)"></i> Monitorizados: <b>${stats.monitorizados}</b></div><div><i class="fa-solid fa-file-import"></i> Importações: <b>${imports.length}</b></div>
+    </div>`;
+}
+async function saveSettings(){
+  const lim=document.getElementById('set-limite').value;
+  await fetchJSON('/api/settings', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({limite_padrao:parseInt(lim)||0})});
+  document.getElementById('settings-msg').innerHTML='<span class="pill pill-green">Guardado!</span>';
+  setTimeout(()=>document.getElementById('settings-msg').innerHTML='',1500);
+}
+async function clearAll(){
+  if(!confirm('Tem a certeza? Vai apagar TODOS os produtos, importações e monitorizados!')) return;
+  if(!confirm('Confirmar novamente: apagar tudo?')) return;
+  await fetchJSON('/api/clear', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({tipo:'tudo'})});
+  alert('Dados apagados'); location.reload();
+}
+
+// ---- Export (removido da sidebar, mas mantém API para uso em Definições se necessário)
+document.getElementById('btn-export')?.addEventListener('click', async(e)=>{
+  e.preventDefault();
+  window.location='/api/export';
+});
+document.getElementById('btn-restore-jump')?.addEventListener('click', (e)=>{
+  e.preventDefault();
+  document.querySelector('[data-tab=definicoes]')?.click();
+  setTimeout(()=>{ document.getElementById('restore-section')?.scrollIntoView({behavior:'smooth', block:'start'}); document.getElementById('restore-section')?.classList.add('notice-info'); setTimeout(()=>document.getElementById('restore-section')?.classList.remove('notice-info'), 1200); }, 300);
+});
+
+async function downloadBackup(){
+  const msg=document.getElementById('backup-msg');
+  if(msg) msg.innerHTML='<span class="pill pill-blue"><i class="fa-solid fa-spinner fa-spin"></i> A preparar backup...</span>';
+  try{
+    window.location='/api/backup';
+    if(msg) setTimeout(()=>msg.innerHTML='<span class="pill pill-green"><i class="fa-solid fa-check"></i> Download iniciado</span>', 800);
+    setTimeout(()=>{ if(msg) msg.innerHTML=''; }, 3000);
+  }catch(e){
+    if(msg) msg.innerHTML='<span class="pill pill-red"><i class="fa-solid fa-circle-xmark"></i> Erro: '+esc(e.message)+'</span>';
+  }
+}
+
+// ---- Restaurar Backup ----
+const restoreDrop=document.getElementById('restore-drop');
+const restoreInput=document.getElementById('restore-file');
+if(restoreDrop && restoreInput){
+  ['dragenter','dragover'].forEach(e=>restoreDrop.addEventListener(e, ev=>{ev.preventDefault(); restoreDrop.classList.add('drag')}));
+  ['dragleave','drop'].forEach(e=>restoreDrop.addEventListener(e, ev=>{ev.preventDefault(); restoreDrop.classList.remove('drag')}));
+  restoreDrop.addEventListener('drop', ev=>{ const f=ev.dataTransfer.files[0]; if(f){ restoreInput.files=ev.dataTransfer.files; updateRestoreFileName(); }});
+  restoreInput.addEventListener('change', updateRestoreFileName);
+}
+function updateRestoreFileName(){
+  const f=restoreInput?.files[0];
+  const el=document.getElementById('restore-file-name');
+  if(el) el.textContent=f? 'Selecionado: '+f.name+' ('+(f.size/1024).toFixed(1)+' KB)':'';
+}
+async function doRestore(){
+  const f=restoreInput?.files[0];
+  if(!f) return alert('Escolha um ficheiro .zip ou .json de backup');
+  if(!confirm('Tem a certeza? Isto vai SUBSTITUIR todos os dados atuais (stock, importações, monitorizados, definições) pelo conteúdo do backup.')) return;
+  if(!confirm('Confirmar novamente: restaurar backup e apagar dados atuais?')) return;
+  const btn=document.getElementById('btn-restore');
+  const resEl=document.getElementById('restore-result');
+  btn.disabled=true; btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> A restaurar...';
+  resEl.innerHTML='<div class="notice notice-info"><i class="fa-solid fa-spinner fa-spin"></i> A processar backup...</div>';
+  try{
+    const fd=new FormData(); fd.append('file', f);
+    const data=await fetchJSON('/api/restore', {method:'POST', body:fd});
+    resEl.innerHTML=`<div class="notice notice-ok"><i class="fa-solid fa-circle-check"></i> <b>Backup restaurado!</b> ${data.restored.imports||0} importações, ${data.restored.products||0} produtos, ${data.restored.import_products||0} snapshots, ${data.restored.monitorizados||0} monitorizados</div>`;
+    // Atualizar tudo
+    setTimeout(()=>{ loadStock(); loadVerificacao(); loadMonitored(); loadImports(); loadStats(); loadSettings(); }, 500);
+  }catch(e){
+    resEl.innerHTML=`<div class="notice notice-err"><i class="fa-solid fa-circle-xmark"></i> Erro: ${esc(e.message)}</div>`;
+  }finally{
+    btn.disabled=false; btn.innerHTML='<i class="fa-solid fa-rotate-left"></i> Restaurar agora';
+  }
+}
+
+
+
+// ---- Dedicated select wrapper (evita setas em linha no dropdown) ----
+function enhanceSelects(){
+  document.querySelectorAll('select.select:not([data-wrapped])').forEach(sel=>{
+    sel.setAttribute('data-wrapped','1');
+    const wrapper=document.createElement('div');
+    wrapper.className='select-wrapper';
+    // Copiar width inline se existir
+    const styleWidth=sel.style.width;
+    const parent=sel.parentNode;
+    parent.insertBefore(wrapper, sel);
+    wrapper.appendChild(sel);
+    if(styleWidth) wrapper.style.width=styleWidth;
+    // Se o select tinha style width via atributo, mover para wrapper
+    if(sel.getAttribute('style') && sel.getAttribute('style').includes('width')){
+      wrapper.style.width=sel.style.width;
+      // Não remover do select, mas garantir wrapper tem mesma
+    }
+  });
+}
+document.addEventListener('DOMContentLoaded', enhanceSelects);
+// Re-aplicar após conteúdo dinâmico (ex: loadMarcas)
+const _origLoadMarcas2 = window.loadMarcas;
+if(typeof loadMarcas === 'function'){
+  const orig = loadMarcas;
+  window.loadMarcas = async function(){ await orig(); setTimeout(enhanceSelects, 10); };
+}
+
+// ---- Dedicated number spinner (profissional e coerente) ----
+function enhanceNumberInputs(){
+  document.querySelectorAll('input[type="number"]:not([data-enhanced])').forEach(inp=>{
+    inp.setAttribute('data-enhanced','1');
+    const wrapper=document.createElement('div');
+    wrapper.className='number-wrapper';
+    // Preserve original width style if any
+    const width=inp.style.width;
+    inp.parentNode.insertBefore(wrapper, inp);
+    wrapper.appendChild(inp);
+    if(width) wrapper.style.width=width;
+    else if(inp.classList.contains('input')) wrapper.style.maxWidth=inp.style.maxWidth || '';
+    const spinner=document.createElement('div');
+    spinner.className='number-spinner';
+    spinner.innerHTML='<button type="button" class="spin-up" title="Aumentar"><i class="fa-solid fa-chevron-up"></i></button><button type="button" class="spin-down" title="Diminuir"><i class="fa-solid fa-chevron-down"></i></button>';
+    wrapper.appendChild(spinner);
+    const up=spinner.querySelector('.spin-up');
+    const down=spinner.querySelector('.spin-down');
+    const stepUp=()=>{ inp.stepUp(); inp.dispatchEvent(new Event('change',{bubbles:true})); inp.dispatchEvent(new Event('input',{bubbles:true})); };
+    const stepDown=()=>{ inp.stepDown(); inp.dispatchEvent(new Event('change',{bubbles:true})); inp.dispatchEvent(new Event('input',{bubbles:true})); };
+    up.addEventListener('click', (e)=>{ e.preventDefault(); stepUp(); });
+    down.addEventListener('click', (e)=>{ e.preventDefault(); stepDown(); });
+    // Long press
+    let timer=null;
+    const startUp=(e)=>{ e.preventDefault(); stepUp(); timer=setInterval(stepUp, 120); };
+    const startDown=(e)=>{ e.preventDefault(); stepDown(); timer=setInterval(stepDown, 120); };
+    const stop=()=>{ if(timer) clearInterval(timer); timer=null; };
+    up.addEventListener('mousedown', startUp); up.addEventListener('touchstart', startUp, {passive:false});
+    down.addEventListener('mousedown', startDown); down.addEventListener('touchstart', startDown, {passive:false});
+    ['mouseup','mouseleave','touchend','touchcancel'].forEach(ev=>{ up.addEventListener(ev, stop); down.addEventListener(ev, stop); });
+  });
+}
+document.addEventListener('DOMContentLoaded', enhanceNumberInputs);
+// Re-enhance after dynamic content (ex: monitorizados tabela)
+const _origLoadMonitored = typeof loadMonitored === 'function' ? loadMonitored : null;
+if(_origLoadMonitored){
+  const wrappedLoadMonitored = async function(){ await _origLoadMonitored(); setTimeout(enhanceNumberInputs, 50); };
+  // Replace global
+  // Use setTimeout to override after definition
+  setTimeout(()=>{ if(window.loadMonitored) window.loadMonitored = wrappedLoadMonitored; }, 0);
+}
+
+// utils
+function esc(s){ if(s===null||s===undefined) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function escAttr(s){ return String(s).replace(/'/g,"\\'").replace(/"/g,'&quot;'); }
+
+// init
+updateThemeSettingsUI();
+loadStock();
+loadVerificacao();
+</script>
+</body>
+</html>
