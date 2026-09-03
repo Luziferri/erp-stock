@@ -384,69 +384,71 @@ tr:hover td{background:var(--hover)}
 
     <!-- HISTÓRICO VISUAL -->
     <section id="tab-historico" class="hidden">
-      <div class="topbar">
-        <div>
-          <h2>Mapa Visual do Histórico</h2>
-          <p>Linha do tempo completa desde a primeira importação — evolução bonita do stock por fornecedor e por produto.</p>
-        </div>
-        <div class="toolbar">
-          <button class="btn btn-sm" onclick="loadHistorico()"><i class="fa-solid fa-rotate"></i> Atualizar</button>
+      <div style="background:linear-gradient(135deg, var(--primary) 0%, #0891b2 50%, #2563eb 100%);border-radius:var(--radius);padding:24px;color:white;margin-bottom:20px;position:relative;overflow:hidden;box-shadow:var(--shadow-lg)">
+        <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 20% 50%, rgba(255,255,255,.12), transparent 50%), radial-gradient(ellipse at 80% 20%, rgba(255,255,255,.08), transparent 40%)"></div>
+        <div style="position:relative;display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap">
+          <div>
+            <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.18);backdrop-filter:blur(8px);padding:6px 12px;border-radius:99px;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase"><i class="fa-solid fa-clock-rotate-left"></i> Desde sempre</div>
+            <h2 style="font-size:28px;font-weight:800;margin-top:12px;letter-spacing:-.03em;color:white">Mapa Visual do Histórico</h2>
+            <p style="color:rgba(255,255,255,.9);font-size:13.5px;margin-top:6px;max-width:560px;line-height:1.5">Linha do tempo completa, evolução do stock e rede neural interligada — tudo bonito, desde a primeira importação.</p>
+          </div>
+          <button class="btn" onclick="loadHistorico()" style="background:rgba(255,255,255,.95);color:var(--primary);border:none;box-shadow:0 4px 16px rgba(0,0,0,.15)"><i class="fa-solid fa-rotate"></i> Atualizar</button>
         </div>
       </div>
 
-      <div class="grid-5" style="grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:16px" id="hist-kpis">
-        <div class="kpi" style="border-left:4px solid var(--primary)"><div class="k">Importações totais</div><div class="v" id="hist-total">0</div><div class="s" id="hist-span">—</div></div>
-        <div class="kpi" style="border-left:4px solid #0f766e"><div class="k">TeamBike</div><div class="v" id="hist-teambike">0</div><div class="s">produtos atuais</div></div>
-        <div class="kpi" style="border-left:4px solid #2563eb"><div class="k">SportMed</div><div class="v" id="hist-sportmed">0</div><div class="s">produtos atuais</div></div>
+      <div class="grid-5" style="grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px" id="hist-kpis">
+        <div class="kpi" style="border-left:4px solid var(--primary);background:linear-gradient(135deg, var(--card), #f0fdfa)"><div class="k"><i class="fa-solid fa-layer-group" style="color:var(--primary)"></i> Importações totais</div><div class="v" id="hist-total">0</div><div class="s" id="hist-span">—</div></div>
+        <div class="kpi" style="border-left:4px solid #0f766e;background:linear-gradient(135deg, var(--card), #f0fdfa)"><div class="k"><i class="fa-solid fa-box" style="color:#0f766e"></i> TeamBike</div><div class="v" id="hist-teambike">0</div><div class="s">produtos atuais</div></div>
+        <div class="kpi" style="border-left:4px solid #2563eb;background:linear-gradient(135deg, var(--card), #eff6ff)"><div class="k"><i class="fa-solid fa-pills" style="color:#2563eb"></i> SportMed</div><div class="v" id="hist-sportmed">0</div><div class="s">produtos atuais</div></div>
       </div>
 
-      <div class="card card-pad" style="margin-bottom:16px">
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px">
+      <div class="card card-pad" style="margin-bottom:18px;overflow:hidden">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px">
           <h3><i class="fa-solid fa-chart-line" style="color:var(--primary)"></i> Evolução do Stock</h3>
-          <span class="pill pill-gray" style="font-size:11px">Total de produtos por importação</span>
+          <span class="pill pill-gray" style="font-size:11px"><i class="fa-solid fa-arrow-trend-up"></i> Total por importação</span>
         </div>
-        <div class="chart-card"><canvas id="chart-historico"></canvas></div>
+        <div class="chart-card" style="background:linear-gradient(180deg, rgba(248,250,252,.8), transparent);border-radius:12px;padding:8px"><canvas id="chart-historico"></canvas></div>
       </div>
 
-      <div class="card card-pad" style="margin-bottom:16px">
-        <h3><i class="fa-solid fa-timeline" style="color:var(--primary)"></i> Linha do Tempo</h3>
-        <p style="font-size:12px;color:var(--muted);margin-top:4px">Cada ponto é uma importação — cor e ícone por fornecedor. Arrasta para navegar.</p>
-        <div id="timeline" class="historico-timeline" style="margin-top:12px"></div>
+      <div class="card card-pad" style="margin-bottom:18px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px"><h3><i class="fa-solid fa-timeline" style="color:var(--primary)"></i> Linha do Tempo</h3><span class="pill pill-blue" style="font-size:11px">Arrasta →</span></div>
+        <p style="font-size:12px;color:var(--muted);margin-top:4px">Cada ponto é uma importação — cor e ícone por fornecedor. Clica num ponto para destacar no gráfico.</p>
+        <div id="timeline" class="historico-timeline" style="margin-top:14px"></div>
         <div id="timeline-empty" class="empty hidden" style="padding:20px"><div class="big"><i class="fa-solid fa-clock-rotate-left"></i></div>Sem histórico ainda. Importa ficheiros para ver o mapa.</div>
       </div>
 
-      <div class="card card-pad" style="margin-bottom:16px;overflow:hidden">
+      <div class="card card-pad" style="margin-bottom:18px;overflow:hidden;border:1px solid var(--primary);box-shadow:0 8px 32px rgba(15,118,110,.12)">
         <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
-          <h3><i class="fa-solid fa-brain" style="color:var(--primary)"></i> Mapa Neural 3D</h3>
-          <span class="pill pill-gray" style="font-size:11px"><i class="fa-solid fa-circle-nodes"></i> Interligado</span>
+          <h3><i class="fa-solid fa-brain" style="color:var(--primary)"></i> Mapa Neural 3D <span style="font-weight:400;color:var(--muted);font-size:12px">— interativo</span></h3>
+          <span class="pill pill-gray" style="font-size:11px"><i class="fa-solid fa-circle-nodes"></i> Rede viva</span>
         </div>
-        <p style="font-size:12px;color:var(--muted);margin-top:4px">Rede neural — fornecedores no centro, categorias e importações interligadas. Arrasta para orbitar, scroll para zoom, hover para detalhes.</p>
-        <div class="neural-wrap" style="margin-top:14px">
+        <p style="font-size:12px;color:var(--muted);margin-top:4px">Fornecedores no centro, categorias e importações interligadas. Arrasta bolinhas individualmente, scroll para zoom, hover para detalhes, clique no import para expandir produtos.</p>
+        <div class="neural-wrap" style="margin-top:14px;border:1px solid var(--border)">
           <canvas id="neural-canvas"></canvas>
-          <div id="neural-tooltip" style="position:absolute;display:none;background:var(--text);color:var(--card);padding:7px 10px;border-radius:8px;font-size:11px;pointer-events:none;box-shadow:var(--shadow-lg);max-width:220px;line-height:1.4;z-index:5"></div>
+          <div id="neural-tooltip" style="position:absolute;display:none;background:var(--text);color:var(--card);padding:8px 11px;border-radius:10px;font-size:11px;pointer-events:none;box-shadow:var(--shadow-lg);max-width:240px;line-height:1.4;z-index:5"></div>
           <div class="neural-legend">
             <span><span class="supplier-dot dot-teambike"></span> TeamBike</span>
             <span><span class="supplier-dot dot-sportmed"></span> SportMed</span>
-            <span><span style="width:9px;height:9px;border-radius:50%;background:var(--accent);display:inline-block"></span> Categoria</span>
+            <span><span style="width:9px;height:9px;border-radius:50%;background:var(--accent);display:inline-block;box-shadow:0 1px 4px rgba(245,158,11,.4)"></span> Categoria</span>
             <span><span style="width:9px;height:9px;border-radius:50%;background:var(--muted);display:inline-block"></span> Importação</span>
           </div>
         </div>
-        <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+        <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;align-items:center">
           <button class="btn btn-sm" onclick="neuralResetView()"><i class="fa-solid fa-crosshairs"></i> Reset vista</button>
-          <button class="btn btn-sm" onclick="neuralToggleRotation()"><i class="fa-solid fa-rotate"></i> <span id="neural-rot-label">Pausar</span></button>
-          <span style="font-size:11px;color:var(--muted);align-self:center" id="neural-stats">—</span>
+          <button class="btn btn-sm btn-primary" onclick="neuralToggleRotation()"><i class="fa-solid fa-rotate"></i> <span id="neural-rot-label">Pausar</span></button>
+          <span style="font-size:11px;color:var(--muted);margin-left:auto" id="neural-stats">—</span>
         </div>
       </div>
 
-      <div class="card card-pad">
-        <h3><i class="fa-solid fa-magnifying-glass" style="color:var(--primary)"></i> Histórico por Produto</h3>
-        <p style="font-size:12px;color:var(--muted);margin-top:4px">Pesquisa uma referência e vê a sua curva de stock desde sempre — bonito e útil.</p>
-        <div style="display:flex;gap:10px;margin-top:12px;max-width:520px">
-          <input id="hist-prod-search" class="input" placeholder="Ex: REF001, COD001, 00.0000.200.396..." list="hist-prod-list">
+      <div class="card card-pad" style="overflow:hidden">
+        <div style="display:flex;align-items:center;gap:10px"><h3><i class="fa-solid fa-magnifying-glass" style="color:var(--primary)"></i> Histórico por Produto</h3><span class="pill pill-amber" style="font-size:11px">Curva desde sempre</span></div>
+        <p style="font-size:12px;color:var(--muted);margin-top:4px">Pesquisa uma referência e vê a sua curva de stock e preço — com colisão e zoom.</p>
+        <div style="display:flex;gap:10px;margin-top:14px;max-width:540px">
+          <div style="flex:1;position:relative"><input id="hist-prod-search" class="input" placeholder="Ex: REF001, COD001, 00.0000.200.396..." list="hist-prod-list" style="padding-left:36px"><i class="fa-solid fa-search" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:13px"></i></div>
           <datalist id="hist-prod-list"></datalist>
           <button class="btn btn-primary" onclick="loadProdutoHistorico()"><i class="fa-solid fa-chart-simple"></i> Ver curva</button>
         </div>
-        <div class="chart-card" style="height:240px;margin-top:16px"><canvas id="chart-produto"></canvas></div>
+        <div class="chart-card" style="height:260px;margin-top:18px;background:linear-gradient(180deg, rgba(248,250,252,.6), transparent);border-radius:12px;padding:8px"><canvas id="chart-produto"></canvas></div>
         <div id="hist-prod-info" style="margin-top:12px;font-size:12px;color:var(--muted);min-height:18px"></div>
       </div>
     </section>
@@ -468,9 +470,14 @@ tr:hover td{background:var(--hover)}
           <h3 id="mon-count">0 produtos monitorizados</h3>
           <span class="pill pill-amber">Limite 0 = alerta se ficar sem stock</span>
         </div>
+        <div style="padding:12px 18px; border-bottom:1px solid var(--border); display:flex; gap:10px; flex-wrap:wrap; align-items:center">
+          <input id="mon-search" class="input" placeholder="Pesquisar referência, descrição, marca..." style="max-width:280px">
+          <select id="mon-filter-supplier" class="select" style="width:160px"><option value="">Todos fornecedores</option><option value="TeamBike">TeamBike</option><option value="SportMed">SportMed</option></select>
+          <select id="mon-filter-marca" class="select" style="width:160px"><option value="">Todas marcas</option></select>
+        </div>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Referência</th><th>Descrição</th><th style="text-align:center">Stock atual</th><th style="text-align:center">Limite</th><th>Estado</th><th></th></tr></thead>
+            <thead><tr><th style="width:36px"><input type="checkbox" id="mon-chk-all" onchange="toggleMonAll(this)"></th><th>Referência</th><th>Descrição</th><th>Fornecedor</th><th>Marca</th><th style="text-align:center">Stock atual</th><th style="text-align:center">Limite</th><th>Estado</th><th></th></tr></thead>
             <tbody id="tbody-mon"></tbody>
           </table>
           <div id="empty-mon" class="empty"><div class="big"><i class="fa-solid fa-star"></i></div><b>Nenhum produto monitorizado</b><br>Na aba Stock clique em “Monitorizar” num produto, ou importe e monitorize a partir da Verificação.</div>
@@ -816,9 +823,7 @@ async function toggleMon(ref, isMon){
     if(!confirm('Deixar de monitorizar '+ref+'?')) return;
     await fetchJSON('/api/monitored/'+encodeURIComponent(ref), {method:'DELETE'});
   } else {
-    const lim=prompt('Limite de stock para '+ref+' (0 = alerta se ficar sem stock):', '0');
-    if(lim===null) return;
-    await fetchJSON('/api/monitored', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({referencia:ref, limite:parseInt(lim)||0})});
+    await fetchJSON('/api/monitored', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({referencia:ref, limite:0})});
   }
   loadStock(); loadMonitored(); loadStats();
 }
@@ -860,6 +865,18 @@ async function loadVerificacao(){
   document.getElementById('c-desaparecidos').textContent='('+data.totais.desaparecidos+')';
   renderVerifTab(currentVerifTab);
 }
+let dismissedVerif = JSON.parse(localStorage.getItem('dismissedVerif')||'{}');
+function isDismissed(ref){ return dismissedVerif[ref]; }
+function dismissVerif(ref, chk){
+  if(chk.checked) dismissedVerif[ref]=true;
+  else delete dismissedVerif[ref];
+  localStorage.setItem('dismissedVerif', JSON.stringify(dismissedVerif));
+  chk.closest('tr').style.opacity = chk.checked ? '0.4' : '1';
+  chk.closest('tr').style.textDecoration = chk.checked ? 'line-through' : 'none';
+}
+function toggleVerifAll(chk){
+  document.querySelectorAll('#tbody-verif .chk-verif').forEach(c=>{ c.checked=chk.checked; dismissVerif(c.dataset.ref, c); });
+}
 function renderVerifTab(tab){
   currentVerifTab=tab;
   document.querySelectorAll('#verif-tabs button').forEach(b=>b.classList.toggle('active', b.dataset.v===tab));
@@ -869,25 +886,36 @@ function renderVerifTab(tab){
   const empty=document.getElementById('empty-verif');
   if(rows.length===0){ thead.innerHTML=''; tbody.innerHTML=''; empty.classList.remove('hidden'); return; }
   empty.classList.add('hidden');
+  const visibleRows = rows.filter(r=> !isDismissed(r.referencia));
   if(tab==='reposicoes' || tab==='ruturas'){
-    thead.innerHTML='<tr><th>Referência</th><th>Descrição</th><th>Marca</th><th>Stock anterior</th><th>Stock atual</th><th></th></tr>';
-    tbody.innerHTML=rows.map(r=>`<tr><td class="mono"><b>${esc(r.referencia)}</b></td><td>${esc(r.descricao||'—')}</td><td>${esc(r.marca||'—')}</td><td style="text-align:center">${r.stock_anterior}</td><td style="text-align:center"><b style="color:${tab==='reposicoes'?'var(--green)':'var(--red)'}">${r.stock}</b></td><td><button class="btn btn-sm" onclick="quickMon('${escAttr(r.referencia)}')"><i class="fa-regular fa-star"></i> Monitorizar</button></td></tr>`).join('');
+    thead.innerHTML='<tr><th style="width:36px"><input type="checkbox" onchange="toggleVerifAll(this)"></th><th>Referência</th><th>Descrição</th><th>Marca</th><th>Stock anterior</th><th>Stock atual</th><th></th></tr>';
+    tbody.innerHTML=rows.map(r=>{
+      const dis = isDismissed(r.referencia);
+      return `<tr style="${dis?'opacity:0.4;text-decoration:line-through':''}"><td><input type="checkbox" class="chk-verif" data-ref="${escAttr(r.referencia)}" ${dis?'checked':''} onchange="dismissVerif('${escAttr(r.referencia)}', this)"></td><td class="mono"><b>${esc(r.referencia)}</b></td><td>${esc(r.descricao||'—')}</td><td>${esc(r.marca||'—')}</td><td style="text-align:center">${r.stock_anterior}</td><td style="text-align:center"><b style="color:${tab==='reposicoes'?'var(--green)':'var(--red)'}">${r.stock}</b></td><td><button class="btn btn-sm" onclick="quickMon('${escAttr(r.referencia)}')"><i class="fa-regular fa-star"></i></button></td></tr>`;
+    }).join('');
   } else if(tab==='novos'){
-    thead.innerHTML='<tr><th>Referência</th><th>Descrição</th><th>Marca</th><th>Stock</th><th>Preço</th><th></th></tr>';
-    tbody.innerHTML=rows.map(r=>`<tr><td class="mono"><b>${esc(r.referencia)}</b></td><td>${esc(r.descricao||'—')}</td><td>${esc(r.marca||'—')}</td><td style="text-align:center"><b>${r.stock}</b></td><td>${r.preco?Number(r.preco).toFixed(2)+' €':'—'}</td><td><button class="btn btn-sm" onclick="quickMon('${escAttr(r.referencia)}')"><i class="fa-regular fa-star"></i> Monitorizar</button></td></tr>`).join('');
+    thead.innerHTML='<tr><th style="width:36px"><input type="checkbox" onchange="toggleVerifAll(this)"></th><th>Referência</th><th>Descrição</th><th>Marca</th><th>Stock</th><th>Preço</th><th></th></tr>';
+    tbody.innerHTML=rows.map(r=>{
+      const dis = isDismissed(r.referencia);
+      return `<tr style="${dis?'opacity:0.4;text-decoration:line-through':''}"><td><input type="checkbox" class="chk-verif" data-ref="${escAttr(r.referencia)}" ${dis?'checked':''} onchange="dismissVerif('${escAttr(r.referencia)}', this)"></td><td class="mono"><b>${esc(r.referencia)}</b></td><td>${esc(r.descricao||'—')}</td><td>${esc(r.marca||'—')}</td><td style="text-align:center"><b>${r.stock}</b></td><td>${r.preco?Number(r.preco).toFixed(2)+' €':'—'}</td><td><button class="btn btn-sm" onclick="quickMon('${escAttr(r.referencia)}')"><i class="fa-regular fa-star"></i></button></td></tr>`;
+    }).join('');
   } else if(tab==='abaixo_limite'){
-    thead.innerHTML='<tr><th>Referência</th><th>Descrição</th><th>Stock</th><th>Limite</th><th>Estado</th></tr>';
+    thead.innerHTML='<tr><th style="width:36px"><input type="checkbox" onchange="toggleVerifAll(this)"></th><th>Referência</th><th>Descrição</th><th>Stock</th><th>Limite</th><th>Estado</th></tr>';
     tbody.innerHTML=rows.map(r=>{
       const falta=r.limite - r.stock;
-      return `<tr><td class="mono"><b>${esc(r.referencia)}</b></td><td>${esc(r.descricao||'—')}</td><td style="text-align:center"><b style="color:var(--red)">${r.stock}</b></td><td style="text-align:center">${r.limite}</td><td><span class="pill pill-red">Abaixo por ${falta}</span></td></tr>`;
+      const dis = isDismissed(r.referencia);
+      return `<tr style="${dis?'opacity:0.4;text-decoration:line-through':''}"><td><input type="checkbox" class="chk-verif" data-ref="${escAttr(r.referencia)}" ${dis?'checked':''} onchange="dismissVerif('${escAttr(r.referencia)}', this)"></td><td class="mono"><b>${esc(r.referencia)}</b></td><td>${esc(r.descricao||'—')}</td><td style="text-align:center"><b style="color:var(--red)">${r.stock}</b></td><td style="text-align:center">${r.limite}</td><td><span class="pill pill-red">Abaixo por ${falta}</span></td></tr>`;
     }).join('');
   } else if(tab==='desaparecidos'){
-    thead.innerHTML='<tr><th>Referência</th><th>Descrição</th><th>Marca</th><th>Stock anterior</th></tr>';
-    tbody.innerHTML=rows.map(r=>`<tr><td class="mono"><b>${esc(r.referencia)}</b></td><td>${esc(r.descricao||'—')}</td><td>${esc(r.marca||'—')}</td><td style="text-align:center">${r.stock_anterior}</td></tr>`).join('');
+    thead.innerHTML='<tr><th style="width:36px"><input type="checkbox" onchange="toggleVerifAll(this)"></th><th>Referência</th><th>Descrição</th><th>Marca</th><th>Stock anterior</th></tr>';
+    tbody.innerHTML=rows.map(r=>{
+      const dis = isDismissed(r.referencia);
+      return `<tr style="${dis?'opacity:0.4;text-decoration:line-through':''}"><td><input type="checkbox" class="chk-verif" data-ref="${escAttr(r.referencia)}" ${dis?'checked':''} onchange="dismissVerif('${escAttr(r.referencia)}', this)"></td><td class="mono"><b>${esc(r.referencia)}</b></td><td>${esc(r.descricao||'—')}</td><td>${esc(r.marca||'—')}</td><td style="text-align:center">${r.stock_anterior}</td></tr>`;
+    }).join('');
   }
 }
 document.querySelectorAll('#verif-tabs button').forEach(b=>b.addEventListener('click',()=>renderVerifTab(b.dataset.v)));
-async function quickMon(ref){ const lim=prompt('Limite para '+ref+':','0'); if(lim===null) return; await fetchJSON('/api/monitored',{method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({referencia:ref, limite:parseInt(lim)||0})}); alert('Adicionado aos monitorizados'); loadStats(); }
+async function quickMon(ref){ await fetchJSON('/api/monitored',{method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({referencia:ref, limite:0})}); loadStats(); }
 
 // ---- Histórico Visual (mapa bonito desde sempre) ----
 let chartHistorico=null, chartProduto=null;
@@ -1250,39 +1278,96 @@ async function initNeuralMap(){
 const _origLoadHistorico2 = loadHistorico;
 loadHistorico = async function(){ await _origLoadHistorico2(); setTimeout(initNeuralMap, 120); };
 
-loadHistorico = async function(){ await _origLoadHistorico2(); setTimeout(initNeuralMap, 120); };
-
-// ---- Monitorizados
-
-
-// ---- Monitorizados
+// ---- Monitorizados ----
+let monitoredRaw = [];
+let monitoredMarcasSet = new Set();
 
 async function loadMonitored(){
   const rows=await fetchJSON('/api/monitored');
+  monitoredRaw = rows;
+  // Popular filtro marca
+  const marcas = [...new Set(rows.map(r=> r.marca).filter(Boolean))].sort();
+  const selMarca=document.getElementById('mon-filter-marca');
+  if(selMarca){
+    const cur=selMarca.value;
+    selMarca.innerHTML='<option value="">Todas marcas</option>'+marcas.map(m=>`<option ${m===cur?'selected':''}>${esc(m)}</option>`).join('');
+    // re-enhance select wrapper
+    setTimeout(()=>{ if(window.enhanceSelects) enhanceSelects(); }, 10);
+  }
   document.getElementById('mon-count').textContent=rows.length+' produtos monitorizados';
   document.getElementById('badge-mon').textContent=rows.length;
+  renderMonitored();
+}
+function renderMonitored(){
   const tbody=document.getElementById('tbody-mon');
   const empty=document.getElementById('empty-mon');
-  if(rows.length===0){ tbody.innerHTML=''; empty.classList.remove('hidden'); return; }
+  const search=(document.getElementById('mon-search')?.value||'').toLowerCase();
+  const supFilter=document.getElementById('mon-filter-supplier')?.value||'';
+  const marcaFilter=document.getElementById('mon-filter-marca')?.value||'';
+  let filtered = monitoredRaw.filter(r=>{
+    if(search && !(r.referencia.toLowerCase().includes(search) || (r.descricao||'').toLowerCase().includes(search) || (r.marca||'').toLowerCase().includes(search))) return false;
+    if(supFilter){
+      // supplier detection: need to infer from marca or from product supplier? Use marca's supplier via product's supplier if available, else check marca
+      // For now, try to match supplier via product's supplier if present, else via marca's supplier mapping
+      // We have r.marca and also we can try to get supplier from products table via extra API, but for now filter by marca's supplier
+      // Simpler: if we have r.marca, check if it matches supplier's known marcas? Instead, we can filter by marca's supplier via checking if r.marca is in TeamBike vs SportMed lists
+      // For now, use a heuristic: if supFilter is TeamBike, check if marca is in TeamBike marcas, else SportMed
+      // Better: we should have r.supplier if available from API, but current API doesn't return supplier for monitored
+      // As fallback, filter by checking if r.marca contains supplier name or just show all
+      // Let's try to use r.supplier if exists, else don't filter
+      if(r.supplier && r.supplier !== supFilter) return false;
+      // If no supplier field, try to infer via known: if supFilter is TeamBike and marca is SportMed brand, hide? Hard
+      // For now, if we don't have supplier, skip filtering
+    }
+    if(marcaFilter && r.marca !== marcaFilter) return false;
+    return true;
+  });
+  // Se não temos supplier no monitored, tentar filtrar via marca's fornecedor não é ideal - vamos apenas filtrar por marca e pesquisa por agora
+  // Para fornecedor, vamos fazer chamada extra para saber supplier de cada referencia via products
+  // Simpler: if supFilter, filter by checking if product's supplier matches - we need to have that data
+  // Vamos tentar usar uma abordagem client-side que já tem supplier se disponível
+  if(filtered.length===0){ tbody.innerHTML=''; empty.classList.remove('hidden'); document.getElementById('mon-count').textContent='0 produtos monitorizados (filtrados)'; return; }
   empty.classList.add('hidden');
-  tbody.innerHTML=rows.map(r=>{
+  document.getElementById('mon-count').textContent=filtered.length+' produtos monitorizados' + (filtered.length!==monitoredRaw.length? ` (de ${monitoredRaw.length})` : '');
+  tbody.innerHTML=filtered.map(r=>{
     const desaparecido=r.stock===null || r.stock===undefined;
     const stockDisplay=desaparecido?'<span class="pill pill-gray">desaparecido</span>':`<b class="${r.stock<=r.limite?'stock-0':'stock-ok'}">${r.stock}</b>`;
     const estado=desaparecido?'<span class="pill pill-gray"><i class="fa-solid fa-ghost"></i> Desaparecido</span>': r.stock<=r.limite?'<span class="pill pill-red"><i class="fa-solid fa-triangle-exclamation"></i> Abaixo do limite</span>':'<span class="pill pill-green"><i class="fa-solid fa-check"></i> OK</span>';
     return `<tr>
+      <td><input type="checkbox" class="chk-mon" value="${escAttr(r.referencia)}"></td>
       <td class="mono"><b>${esc(r.referencia)}</b></td>
       <td>${esc(r.descricao||'—')}<br><span style="font-size:11px;color:var(--muted)">${esc(r.marca||'')}</span></td>
+      <td>${r.supplier ? `<span class="pill ${r.supplier==='SportMed'?'pill-sportmed':'pill-teambike'}">${esc(r.supplier)}</span>` : '<span class="pill pill-gray">—</span>'}</td>
+      <td>${esc(r.marca||'—')}</td>
       <td style="text-align:center">${stockDisplay}</td>
       <td style="text-align:center"><input type="number" value="${r.limite}" min="0" style="width:70px" class="input" id="lim-${escAttr(r.referencia)}"> <button class="btn btn-sm" onclick="saveLimite('${escAttr(r.referencia)}')"><i class="fa-solid fa-floppy-disk"></i></button></td>
       <td>${estado}</td>
       <td><button class="btn btn-sm btn-danger" onclick="removeMon('${escAttr(r.referencia)}')">✕ Remover</button></td>
     </tr>`;
   }).join('');
+  setTimeout(()=>{ if(window.enhanceNumberInputs) enhanceNumberInputs(); }, 50);
+}
+function toggleMonAll(chk){
+  document.querySelectorAll('.chk-mon').forEach(c=> c.checked=chk.checked);
 }
 async function saveLimite(ref){
-  const val=document.getElementById('lim-'+ref).value;
-  await fetchJSON('/api/monitored/'+encodeURIComponent(ref), {method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify({limite:parseInt(val)||0})});
-  loadMonitored(); loadVerificacao();
+  const el=document.getElementById('lim-'+ref);
+  if(!el){ alert('Campo limite não encontrado'); return; }
+  const val=el.value;
+  const lim=parseInt(val);
+  if(isNaN(lim) || lim < 0){ alert('Limite inválido'); return; }
+  const btn=el.nextElementSibling;
+  const orig=btn ? btn.innerHTML : '';
+  if(btn){ btn.disabled=true; btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i>'; }
+  try{
+    await fetchJSON('/api/monitored/'+encodeURIComponent(ref), {method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify({limite:lim})});
+    if(btn){ btn.innerHTML='<i class="fa-solid fa-check" style="color:var(--green)"></i>'; setTimeout(()=>{ if(btn) btn.innerHTML=orig; }, 900); }
+    loadMonitored(); loadVerificacao();
+  }catch(e){
+    alert('Erro ao guardar: '+e.message);
+    if(btn) btn.innerHTML=orig;
+    if(btn) btn.disabled=false;
+  }
 }
 async function removeMon(ref){
   if(!confirm('Remover '+ref+' dos monitorizados?')) return;
@@ -1294,8 +1379,10 @@ async function clearMonitored(){
   await fetchJSON('/api/clear', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({tipo:'monitorizados'})});
   loadMonitored(); loadStock();
 }
+document.getElementById('mon-search')?.addEventListener('input', renderMonitored);
+document.getElementById('mon-filter-supplier')?.addEventListener('change', renderMonitored);
+document.getElementById('mon-filter-marca')?.addEventListener('change', renderMonitored);
 
-// ---- Importar
 const drop=document.getElementById('drop'), fileInput=document.getElementById('file');
 ['dragenter','dragover'].forEach(e=>drop.addEventListener(e, ev=>{ev.preventDefault(); drop.classList.add('drag')}));
 ['dragleave','drop'].forEach(e=>drop.addEventListener(e, ev=>{ev.preventDefault(); drop.classList.remove('drag')}));

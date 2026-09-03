@@ -150,8 +150,21 @@ def upsert_products(rows, import_id, supplier=None):
     if supplier is None:
         row = c.execute("SELECT supplier FROM imports WHERE id=?", (import_id,)).fetchone()
         supplier = row["supplier"] if row and row["supplier"] else "TeamBike"
+    # Otimizar extra_json: remover URLs e campos grandes (FOTOS etc.) que ocupam 22M por import
+    _blacklist = {"FOTOS","FOTO","FOTO2","FOTOS 2","VIDEO","VIDEOS","FOTO_URL","FOTO 2","IMAGEM","IMAGE","URL","FOTOS 3","FOTO 3"}
     for r in rows:
-        extra = json.dumps(r.get("extra", {}), ensure_ascii=False) if r.get("extra") else None
+        raw_extra = r.get("extra") or {}
+        filt_extra = {}
+        for k,v in raw_extra.items():
+            ku = str(k).strip().upper()
+            vs = str(v).strip()
+            if ku in _blacklist: continue
+            if vs.lower().startswith("http"): continue
+            if len(vs) > 80: continue
+            if len(ku) > 30: continue
+            filt_extra[k]=vs
+            if len(filt_extra) >= 6: break
+        extra = json.dumps(filt_extra, ensure_ascii=False) if filt_extra else None
         c.execute("""
             INSERT INTO products(referencia, descricao, stock, preco, marca, categoria, ean, extra_json, supplier)
             VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -325,6 +338,7 @@ def get_monitored_fixed():
             p.marca,
             p.categoria,
             p.ean,
+            p.supplier,
             p.extra_json
         FROM monitored m
         LEFT JOIN products p ON p.referencia = m.referencia
